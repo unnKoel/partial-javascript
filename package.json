@@ -1,0 +1,12 @@
+{
+  "name": "partial-javascript",
+  "private": true,
+  "version": "1.0.0",
+  "description": "front-end monitor log collection",
+  "main": "index.js",
+  "author": "common",
+  "license": "MIT",
+  "workspaces": [
+    "packages/*"
+  ]
+}
