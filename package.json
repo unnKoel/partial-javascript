@@ -8,5 +8,15 @@
   "license": "MIT",
   "workspaces": [
     "packages/*"
-  ]
+  ],
+  "scripts": {
+    "build": "lerna run --stream --concurrency 1 --sort build",
+    "build:es5": "lerna run --stream --concurrency 1 --sort build:es5",
+    "build:esm": "lerna run --stream --concurrency 1 --sort build:esm",
+    "build:watch": "lerna run build:watch --stream --no-sort --concurrency 9999",
+    "clean": "lerna run --stream clean"
+  },
+  "devDependencies": {
+    "lerna": "^3.15.0"
+  }
 }

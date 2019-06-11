@@ -1,0 +1,47 @@
+{
+  "name": "@partial/rrweb",
+  "version": "0.0.1",
+  "description": "record and replay the web",
+  "scripts": {
+    "build": "run-p build:es5 build:esm",
+    "build:es5": "tsc -p tsconfig.build.json",
+    "build:esm": "tsc -p tsconfig.esm.json",
+    "build:watch": "run-p build:watch:es5 build:watch:esm",
+    "build:watch:es5": "tsc -p tsconfig.build.json -w --preserveWatchOutput",
+    "build:watch:esm": "tsc -p tsconfig.esm.json -w --preserveWatchOutput"
+  },
+  "keywords": [
+    "rrweb"
+  ],
+  "main": "dist/index.js",
+  "module": "esm/index.js",
+  "types": "dist/index.d.ts",
+  "author": "common",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/unnKoel/partial-javascript/issues"
+  },
+  "homepage": "https://github.com/unnKoel/partial-javascript",
+  "devDependencies": {
+    "@types/node": "^10.11.7",
+    "cross-env": "^5.2.0",
+    "jest-snapshot": "^23.6.0",
+    "npm-run-all": "^4.1.5",
+    "rollup": "^0.66.6",
+    "rollup-plugin-commonjs": "^9.2.0",
+    "rollup-plugin-node-resolve": "^3.4.0",
+    "rollup-plugin-postcss": "^1.6.2",
+    "rollup-plugin-terser": "^3.0.0",
+    "rollup-plugin-typescript": "^1.0.0",
+    "ts-node": "^7.0.1",
+    "tslib": "^1.9.3",
+    "tslint": "^4.5.1",
+    "typescript": "^3.4.1"
+  },
+  "dependencies": {
+    "@partial/rrweb-snapshot": "^0.0.1",
+    "@types/smoothscroll-polyfill": "^0.3.0",
+    "mitt": "^1.1.3",
+    "smoothscroll-polyfill": "^0.4.3"
+  }
+}

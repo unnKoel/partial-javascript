@@ -1,0 +1,42 @@
+Arguments: 
+  D:\Program Files\nodejs\node.exe D:\Program Files (x86)\Yarn\bin\yarn.js install
+
+PATH: 
+  D:\Program Files\Git\mingw64\bin;D:\Program Files\Git\usr\bin;C:\Users\ci7512\bin;D:\Python27;D:\Python27\Scripts;D:\Program Files (x86)\NetSarang\Xshell 6;C:\Program Files (x86)\Java\jdk1.8.0_66\jre\bin;C:\Program Files (x86)\Java\jdk1.8.0_66\bin;C:\Python27;D:\Ruby22\bin;C:\Windows\System32;C:\Windows;C:\Windows\System32\wbem;C:\Windows\System32\WindowsPowerShell\v1.0;C:\Users\Administrator\phantomjs\bin;D:\Program Files (x86)\Yarn\bin;D:\Program Files\MongoDB\Server\3.4\bin;C:\Program Files\Microsoft VS Code\bin;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0;C:\WINDOWS\System32\OpenSSH;D:\Users\ci7512\AppData\Roaming\nvm;D:\Program Files\nodejs;D:\Program Files (x86)\Yarn\bin;D:\Program Files\Git\cmd;C:\Users\ci7512\AppData\Local\atom\bin;C:\Users\ci7512\AppData\Local\Microsoft\WindowsApps;D:\Program Files\Microsoft VS Code\bin;C:\Users\ci7512\AppData\Local\GitHubDesktop\bin;C:\Users\ci7512\AppData\Local\Microsoft\WindowsApps;C:\Program Files\Microsoft VS Code\bin;D:\Users\ci7512\AppData\Roaming\nvm;D:\Program Files\nodejs;C:\Users\ci7512\AppData\Local\Yarn\bin;C:\Users\ci7512\AppData\Local\Programs\Microsoft VS Code\bin
+
+Yarn version: 
+  1.13.0
+
+Node version: 
+  10.15.3
+
+Platform: 
+  win32 x64
+
+Trace: 
+  SyntaxError: D:\learn-2019\front-end-monitor\partial-javascript\packages\rrweb\package.json: Unexpected token } in JSON at position 463
+      at JSON.parse (<anonymous>)
+      at D:\Program Files (x86)\Yarn\lib\cli.js:1625:59
+      at Generator.next (<anonymous>)
+      at step (D:\Program Files (x86)\Yarn\lib\cli.js:304:30)
+      at D:\Program Files (x86)\Yarn\lib\cli.js:315:13
+
+npm manifest: 
+  {
+    "name": "partial-javascript",
+    "private": true,
+    "version": "1.0.0",
+    "description": "front-end monitor log collection",
+    "main": "index.js",
+    "author": "common",
+    "license": "MIT",
+    "workspaces": [
+      "packages/*"
+    ]
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile
