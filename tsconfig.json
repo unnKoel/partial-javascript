@@ -37,7 +37,6 @@
         "mockTypeScriptVersion": false
       }
     ],
-    "compileOnSave": true,
     "baseUrl": "packages",
     "types": ["node"],
     "paths": {

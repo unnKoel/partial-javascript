@@ -1,0 +1,20 @@
+{
+  "name": "@partial/browser",
+  "version": "1.0.0",
+  "description": "Official partial SDK for browsers",
+  "author": "common",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "module": "esm/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "run-s build:dist build:esm build:bundle",
+    "build:bundle": "rollup --config",
+    "build:bundle:watch": "rollup --config --watch",
+    "build:dist": "tsc -p tsconfig.build.json",
+    "build:dist:watch": "tsc -p tsconfig.build.json -w --preserveWatchOutput",
+    "build:esm": "tsc -p tsconfig.esm.json",
+    "build:esm:watch": "tsc -p tsconfig.esm.json -w --preserveWatchOutput",
+    "build:watch": "run-p build:dist:watch build:esm:watch build:bundle:watch"
+  }
+}
