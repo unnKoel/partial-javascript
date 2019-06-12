@@ -117,7 +117,7 @@ export type observerParam = {
   viewportResizeCb: viewportResizeCallback; //viewport resize callback
   inputCb: inputCallback; //input callback
   blockClass: blockClass;
-  ignoreClass: string;  
+  ignoreClass: string;
   inlineStylesheet: boolean;
 };
 
