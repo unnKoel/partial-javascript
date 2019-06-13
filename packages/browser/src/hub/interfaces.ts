@@ -16,8 +16,8 @@ export interface Layer {
  * An object that contains a hub and maintains a scope stack.
  * @hidden
  */
-export interface Carrier {
+export interface Carrier<B extends Hub> {
   __SENTRY__?: {
-    hub?: Hub;
+    [key: string]: B;
   };
 }

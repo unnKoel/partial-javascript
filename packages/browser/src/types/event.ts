@@ -25,6 +25,10 @@ export interface Event {
   user?: User;
 }
 
+export interface Hint {
+  data?: any;
+}
+
 /** JSDoc */
 export interface EventHint {
   event_id?: string;

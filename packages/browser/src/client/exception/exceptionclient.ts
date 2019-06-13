@@ -1,8 +1,10 @@
 import { Event, EventHint } from '../../types/event';
-import { ExceptionOptions } from '../../types/options';
-import { Scope } from './scope';
+import { ExceptionOptions, Scope } from '../../types';
 import { Severity } from '../../types/severity';
-import { Client } from '../client';
+import { Transport } from '../../transport/transport';
+import { BaseClient } from '../baseclient';
+import { logger, isPrimitive } from '../../utils';
+import { Backend, BackendClass } from './basebackend';
 
 /**
  * User-Facing Sentry SDK Client.
@@ -13,35 +15,86 @@ import { Client } from '../client';
  * there will only be one instance during runtime.
  *
  */
-export interface ExceptionClient<O extends ExceptionOptions = ExceptionOptions> extends Client<O> {
-  /**
-   * Captures an exception event and sends it to Sentry.
-   *
-   * @param exception An exception-like object.
-   * @param hint May contain additional information about the original exception.
-   * @param scope An optional scope containing event metadata.
-   * @returns The event id
-   */
-  captureException(exception: any, hint?: EventHint, scope?: Scope): string | undefined;
+export abstract class ExceptionClient<B extends Backend, O extends ExceptionOptions> extends BaseClient<O, Event, EventHint> {
+  protected readonly _backend: B;
+
+  protected constructor(backendClass: BackendClass<B, O>, transport: Transport, options: O) {
+    super(transport, options);
+    this._backend = new backendClass(options);
+  }
+
+  /** Returns the current backend. */
+  protected _getBackend(): B {
+    return this._backend;
+  }
 
   /**
-   * Captures a message event and sends it to Sentry.
-   *
-   * @param message The message to send to Sentry.
-   * @param level Define the level of the message.
-   * @param hint May contain additional information about the original exception.
-   * @param scope An optional scope containing event metadata.
-   * @returns The event id
-   */
-  captureMessage(message: string, level?: Severity, hint?: EventHint, scope?: Scope): string | undefined;
+ * @inheritDoc
+ */
+  public captureException(exception: any, hint?: EventHint, scope?: Scope): string | undefined {
+    let eventId: string | undefined = hint && hint.event_id;
+    this._processing = true;
+
+    this._getBackend()
+      .eventFromException(exception, hint)
+      .then(event => super.processBeforeSend(event, hint, scope))
+      .then(finalEvent => {
+        // We need to check for finalEvent in case beforeSend returned null
+        eventId = finalEvent && finalEvent.event_id;
+        this._processing = false;
+      })
+      .catch(reason => {
+        logger.error(reason);
+        this._processing = false;
+      });
+
+    return eventId;
+  }
 
   /**
-   * Captures a manually created event and sends it to Sentry.
-   *
-   * @param event The event to send to Sentry.
-   * @param hint May contain additional information about the original exception.
-   * @param scope An optional scope containing event metadata.
-   * @returns The event id
+   * @inheritDoc
    */
-  captureEvent(event: Event, hint?: EventHint, scope?: Scope): string | undefined;
+  public captureMessage(message: string, level?: Severity, hint?: EventHint, scope?: Scope): string | undefined {
+    let eventId: string | undefined = hint && hint.event_id;
+
+    this._processing = true;
+
+    const promisedEvent = isPrimitive(message)
+      ? this._getBackend().eventFromMessage(`${message}`, level, hint)
+      : this._getBackend().eventFromException(message, hint);
+
+    promisedEvent
+      .then(event => super.processBeforeSend(event, hint, scope))
+      .then(finalEvent => {
+        // We need to check for finalEvent in case beforeSend returned null
+        eventId = finalEvent && finalEvent.event_id;
+        this._processing = false;
+      })
+      .catch(reason => {
+        logger.error(reason);
+        this._processing = false;
+      });
+
+    return eventId;
+  }
+
+  /**
+   * @inheritDoc
+   */
+  public captureEvent(event: Event, hint?: EventHint, scope?: Scope): string | undefined {
+    let eventId: string | undefined = hint && hint.event_id;
+    this._processing = true;
+
+    super.processBeforeSend(event, hint, scope)
+      .then(finalEvent => {
+        // We need to check for finalEvent in case beforeSend returned null
+        eventId = finalEvent && finalEvent.event_id;
+        this._processing = false;
+      })
+      .catch(reason => {
+        logger.error(reason);
+        this._processing = false;
+      });
+    return eventId;
+  }
 }

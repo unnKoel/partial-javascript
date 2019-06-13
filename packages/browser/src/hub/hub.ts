@@ -3,11 +3,11 @@ import {
   Hub as HubInterface,
 } from '../types';
 import { Client } from '../client/client';
-import { consoleSandbox, dynamicRequire, getGlobalObject, logger, uuid4 } from '@sentry/utils';
+import { getGlobalObject } from '../utils';
 
 import { Carrier, Layer } from './interfaces';
 
-const API_VERSION = 1;
+export const API_VERSION = 1;
 
 /**
  * @inheritDoc
@@ -24,7 +24,7 @@ export abstract class Hub implements HubInterface {
    * @param scope bound to the hub.
    * @param version number, higher number means higher priority.
    */
-  public constructor(client?: Client<any>, scope?: Scope, private readonly _version: number = API_VERSION) {
+  public constructor(scope: Scope, client?: Client<any>, private readonly _version: number = API_VERSION) {
     this._stack.push({ client, scope });
   }
 
@@ -34,9 +34,9 @@ export abstract class Hub implements HubInterface {
    * @param method The method to call on the client.
    * @param args Arguments to pass to the client function.
    */
-  protected _invokeClient<M extends keyof Client<any>>(method: M, ...args: any[]): void {
+  protected _invokeClient(method: string, ...args: any[]): void {
     const top = this.getStackTop();
-    if (top && top.client && top.client[method]) {
+    if (top && top.client && (top.client as any)[method]) {
       (top.client as any)[method](...args, top.scope);
     }
   }
@@ -124,80 +124,18 @@ export abstract class Hub implements HubInterface {
   }
 }
 
-/** Returns the global shim registry. */
-export function getMainCarrier(): Carrier {
-  const carrier = getGlobalObject();
-  carrier.__SENTRY__ = carrier.__SENTRY__ || {
-    hub: undefined,
-  };
-  return carrier;
-}
-
-/**
- * Replaces the current main hub with the passed one on the global object
- *
- * @returns The old replaced hub
- */
-export function makeMain(hub: Hub): Hub {
-  const registry = getMainCarrier();
-  const oldHub = getHubFromCarrier(registry);
-  setHubOnCarrier(registry, hub);
-  return oldHub;
-}
-
-/**
- * Returns the default hub instance.
- *
- * If a hub is already registered in the global carrier but this module
- * contains a more recent version, it replaces the registered version.
- * Otherwise, the currently registered hub will be returned.
- */
-export function getCurrentHub(): Hub {
-  // Get main carrier (global for every environment)
-  const registry = getMainCarrier();
-
-  // If there's no hub, or its an old API, assign a new one
-  if (!hasHubOnCarrier(registry) || getHubFromCarrier(registry).isOlderThan(API_VERSION)) {
-    setHubOnCarrier(registry, new Hub());
-  }
-
-  // Prefer domains over global if they are there
-  try {
-    // We need to use `dynamicRequire` because `require` on it's own will be optimized by webpack.
-    // We do not want this to happen, we need to try to `require` the domain node module and fail if we are in browser
-    // for example so we do not have to shim it and use `getCurrentHub` universally.
-    const domain = dynamicRequire(module, 'domain');
-    const activeDomain = domain.active;
-
-    // If there no active domain, just return global hub
-    if (!activeDomain) {
-      return getHubFromCarrier(registry);
-    }
-
-    // If there's no hub on current domain, or its an old API, assign a new one
-    if (!hasHubOnCarrier(activeDomain) || getHubFromCarrier(activeDomain).isOlderThan(API_VERSION)) {
-      const registryHubTopStack = getHubFromCarrier(registry).getStackTop();
-      setHubOnCarrier(activeDomain, new Hub(registryHubTopStack.client, Scope.clone(registryHubTopStack.scope)));
-    }
-
-    // Return hub that lives on a domain
-    return getHubFromCarrier(activeDomain);
-  } catch (_Oo) {
-    // Return hub that lives on a global object
-    return getHubFromCarrier(registry);
-  }
-}
-
 /**
  * This will tell whether a carrier has a hub on it or not
  * @param carrier object
  */
-function hasHubOnCarrier(carrier: Carrier): boolean {
-  if (carrier && carrier.__SENTRY__ && carrier.__SENTRY__.hub) {
+export function hasHubOnCarrier<B extends Hub>(carrier: Carrier<B>, key: string): boolean {
+  if (carrier && carrier.__SENTRY__ && carrier.__SENTRY__[key]) {
     return true;
   }
   return false;
 }
+
+export type HubClass<B extends Hub, S extends Scope> = new (scope: S) => B;
 
 /**
  * This will create a new {@link Hub} and add to the passed object on
@@ -205,13 +143,20 @@ function hasHubOnCarrier(carrier: Carrier): boolean {
  * @param carrier object
  * @hidden
  */
-export function getHubFromCarrier(carrier: Carrier): Hub {
-  if (carrier && carrier.__SENTRY__ && carrier.__SENTRY__.hub) {
-    return carrier.__SENTRY__.hub;
+export function getHubFromCarrier<B extends Hub, S extends Scope>(carrier: Carrier<B>, key: string, Hub?: HubClass<B, S>): B {
+  if (carrier && carrier.__SENTRY__ && carrier.__SENTRY__[key]) {
+    return carrier.__SENTRY__[key];
   }
   carrier.__SENTRY__ = carrier.__SENTRY__ || {};
-  carrier.__SENTRY__.hub = new Hub();
+  if (Hub) carrier.__SENTRY__.hub = new Hub();
   return carrier.__SENTRY__.hub;
+}
+
+/** Returns the global shim registry. */
+export function getMainCarrier<B extends Hub>(): Carrier<B> {
+  const carrier = getGlobalObject();
+  carrier.__SENTRY__ = carrier.__SENTRY__ || {};
+  return carrier;
 }
 
 /**
@@ -219,11 +164,11 @@ export function getHubFromCarrier(carrier: Carrier): Hub {
  * @param carrier object
  * @param hub Hub
  */
-export function setHubOnCarrier(carrier: Carrier, hub: Hub): boolean {
+export function setHubOnCarrier<B extends Hub>(carrier: Carrier<B>, key: string, hub: B): boolean {
   if (!carrier) {
     return false;
   }
   carrier.__SENTRY__ = carrier.__SENTRY__ || {};
-  carrier.__SENTRY__.hub = hub;
+  carrier.__SENTRY__[key] = hub;
   return true;
 }

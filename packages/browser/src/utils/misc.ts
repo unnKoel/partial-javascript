@@ -75,10 +75,10 @@ export function getGlobalObject<T>(): T & SentryGlobal {
   return (isNodeEnv()
     ? global
     : typeof window !== 'undefined'
-    ? window
-    : typeof self !== 'undefined'
-    ? self
-    : fallbackGlobalObject) as T & SentryGlobal;
+      ? window
+      : typeof self !== 'undefined'
+        ? self
+        : fallbackGlobalObject) as T & SentryGlobal;
 }
 
 /**

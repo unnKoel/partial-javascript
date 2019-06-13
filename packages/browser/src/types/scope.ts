@@ -1,12 +1,12 @@
 import { User } from './user';
-import { EventProcessor } from './eventprocessor';
+import { SyncPromise } from 'src/utils';
 
 /**
  * 基础Scope接口
  */
 export interface Scope {
   /** 添加日志处理到处理管道 */
-  addProcessor(callback: any): this;
+  addProcessor(callback: Function): this;
 
   /**
    * 更新日志的用户信息
@@ -45,19 +45,6 @@ export interface Scope {
   clear(): this;
 
   clone(): Scope;
-}
 
-/**
- * 异常Scope接口
- */
-export interface ExceptionScope extends Scope {
-  /** Add new event processor that will be called after {@link applyToEvent}. */
-  addEventProcessor(callback: EventProcessor): this;
-
-  /**
-   * Sets context data with the given name.
-   * @param name of the context
-   * @param context Any kind of data. This data will be normailzed.
-   */
-  setContext(name: string, context: { [key: string]: any } | null): this;
+  applyToEvent<E, H>(event: E, hint?: H): SyncPromise<E | null>
 }
