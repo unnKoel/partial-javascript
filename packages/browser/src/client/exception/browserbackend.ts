@@ -76,11 +76,7 @@ export class BrowserBackend implements Backend {
       // which is much better than creating new group when any key/value change
       const objectException = exception as {};
       event = eventFromPlainObject(objectException, hint.syntheticException);
-      addExceptionTypeValue(event, 'Custom Object', undefined, {
-        handled: true,
-        synthetic: true,
-        type: 'generic',
-      });
+      addExceptionTypeValue(event, 'Custom Object', undefined);
       event.level = Severity.Error;
       return SyncPromise.resolve(this._buildEvent(event, hint));
     }
@@ -93,11 +89,7 @@ export class BrowserBackend implements Backend {
     // So bail out and capture it as a simple message:
     const stringException = exception as string;
     return this.eventFromMessage(stringException, undefined, hint).then(messageEvent => {
-      addExceptionTypeValue(messageEvent, `${stringException}`, undefined, {
-        handled: true,
-        synthetic: true,
-        type: 'generic',
-      });
+      addExceptionTypeValue(messageEvent, `${stringException}`, undefined);
       messageEvent.level = Severity.Error;
       return SyncPromise.resolve(this._buildEvent(messageEvent, hint));
     });

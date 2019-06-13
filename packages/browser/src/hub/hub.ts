@@ -2,7 +2,6 @@ import {
   Scope,
   Hub as HubInterface,
 } from '../types';
-import { Client } from '../client/client';
 import { getGlobalObject } from '../utils';
 
 import { Carrier, Layer } from './interfaces';
@@ -24,7 +23,7 @@ export abstract class Hub implements HubInterface {
    * @param scope bound to the hub.
    * @param version number, higher number means higher priority.
    */
-  public constructor(scope: Scope, client?: Client<any>, private readonly _version: number = API_VERSION) {
+  public constructor(scope: Scope, client?: any, private readonly _version: number = API_VERSION) {
     this._stack.push({ client, scope });
   }
 
@@ -51,7 +50,7 @@ export abstract class Hub implements HubInterface {
   /**
    * @inheritDoc
    */
-  public bindClient(client?: Client<any>): void {
+  public bindClient(client?: any): void {
     const top = this.getStackTop();
     top.client = client;
   }
@@ -93,7 +92,7 @@ export abstract class Hub implements HubInterface {
   /**
    * @inheritDoc
    */
-  public getClient<C extends Client<any>>(): C | undefined {
+  public getClient<C>(): C | undefined {
     return this.getStackTop().client as C;
   }
 

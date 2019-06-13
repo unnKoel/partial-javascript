@@ -24,4 +24,5 @@ export { Stacktrace } from './stacktrace';
 // export { Thread } from './thread';
 // export { Transport, TransportOptions, TransportClass } from './transport';
 export { User } from './user';
-// export { WrappedFunction } from './wrappedfunction';
+export { WrappedFunction } from './wrappedfunction';
+export * from './screencapevent';

@@ -54,7 +54,7 @@ export class BaseClient<O extends Options, E, H> implements Client<O, E, H> {
         return result;
     }
 
-    protected processBeforeSend(event: E, hint?: H | undefined, scope?: Scope | undefined): SyncPromise<E> {
+    processBeforeSend(event: E, hint?: H | undefined, scope?: Scope | undefined): SyncPromise<E> {
         const { beforeSend } = this.getOptions();
 
         if (!this._isEnabled()) {

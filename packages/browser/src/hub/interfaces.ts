@@ -1,5 +1,3 @@
-import { Client } from '../client/client';
-
 import { Hub } from './hub';
 import { Scope } from '../types/scope';
 
@@ -8,7 +6,7 @@ import { Scope } from '../types/scope';
  * @hidden
  */
 export interface Layer {
-  client?: Client<any>;
+  client?: any;
   scope?: Scope;
 }
 
