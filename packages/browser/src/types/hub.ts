@@ -1,7 +1,7 @@
-import { Client } from '../client/client';
-import { Scope } from './scope';
-import { Severity } from './severity';
-import { EventHint } from './event';
+import {Client} from '../client/client';
+import {Scope} from './scope';
+import {Severity} from './severity';
+import {EventHint} from './event';
 
 /**
  * Internal class used to make sure we always have the latest internal functions
@@ -64,13 +64,6 @@ export interface Hub {
   getClient(): Client<any> | undefined;
 
   /**
- * This is the getter for lastEventId.
- *
- * @returns The last event id of a captured event.
- */
-  lastEventId(): string | undefined;
-
-  /**
    * Callback to set context information onto the scope.
    *
    * @param callback Callback function that receives Scope.
@@ -80,12 +73,12 @@ export interface Hub {
 
 export interface ExceptionHub extends Hub {
   /**
-     * Captures an exception event and sends it to Sentry.
-     *
-     * @param exception An exception-like object.
-     * @param hint May contain additional information about the original exception.
-     * @returns The generated eventId.
-     */
+   * Captures an exception event and sends it to Sentry.
+   *
+   * @param exception An exception-like object.
+   * @param hint May contain additional information about the original exception.
+   * @returns The generated eventId.
+   */
   captureException(exception: any, hint?: EventHint): string;
 
   /**
@@ -105,4 +98,11 @@ export interface ExceptionHub extends Hub {
    * @param hint May contain additional information about the original exception.
    */
   captureEvent(event: Event, hint?: EventHint): string;
+
+  /**
+   * This is the getter for lastEventId.
+   *
+   * @returns The last event id of a captured event.
+   */
+  lastEventId(): string | undefined;
 }

@@ -16,9 +16,6 @@ export abstract class Hub implements HubInterface {
   /** Is a {@link Layer}[] containing the client and scope */
   private readonly _stack: Layer[] = [];
 
-  /** Contains the last event id of a captured event.  */
-  private _lastEventId?: string;
-
   /**
    * Creates a new instance of the hub, will push one {@link Layer} into the
    * internal stack on creation.
@@ -37,7 +34,7 @@ export abstract class Hub implements HubInterface {
    * @param method The method to call on the client.
    * @param args Arguments to pass to the client function.
    */
-  private _invokeClient<M extends keyof Client<any>>(method: M, ...args: any[]): void {
+  protected _invokeClient<M extends keyof Client<any>>(method: M, ...args: any[]): void {
     const top = this.getStackTop();
     if (top && top.client && top.client[method]) {
       (top.client as any)[method](...args, top.scope);
@@ -113,13 +110,6 @@ export abstract class Hub implements HubInterface {
   /** Returns the topmost scope layer in the order domain > local > process. */
   public getStackTop(): Layer {
     return this._stack[this._stack.length - 1];
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public lastEventId(): string | undefined {
-    return this._lastEventId;
   }
 
   /**
