@@ -1,6 +1,6 @@
 import { Scope } from './scope';
 import { Severity } from './severity';
-import { EventHint } from './event';
+import { Event, EventHint } from './event';
 
 /**
  * Internal class used to make sure we always have the latest internal functions

@@ -2,6 +2,7 @@ import { Hub as HubBase } from './hub';
 import { Scope } from './scope';
 import { uuid4 } from '../utils/misc';
 import { Severity, EventHint } from '../types';
+import { Event } from '../types';
 import { ExceptionHub as ExceptionHubInterface } from '../types/hub';
 import { getMainCarrier, hasHubOnCarrier, getHubFromCarrier, setHubOnCarrier, API_VERSION } from './hub';
 

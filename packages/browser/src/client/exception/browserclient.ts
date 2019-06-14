@@ -25,6 +25,6 @@ export class BrowserClient extends ExceptionClient<BrowserBackend, BrowserOption
      */
     protected _prepareEvent(event: Event, scope?: Scope, hint?: EventHint): SyncPromise<Event | null> {
         event.platform = event.platform || 'javascript';
-        return super._prepareEvent(event, scope, hint);
+        return this._prepareEvent(event, scope, hint);
     }
 }

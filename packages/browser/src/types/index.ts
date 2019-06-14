@@ -26,3 +26,4 @@ export { Stacktrace } from './stacktrace';
 export { User } from './user';
 export { WrappedFunction } from './wrappedfunction';
 export * from './screencapevent';
+export * from './integration';

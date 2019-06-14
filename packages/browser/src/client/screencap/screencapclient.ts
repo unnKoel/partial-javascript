@@ -4,7 +4,7 @@ import { logger } from '../../utils';
 import { ScreenCapEvent, ScreenCapEventHint, Options } from '../../types';
 
 export class ScreenCapClient extends BaseClient<Options, ScreenCapEvent, ScreenCapEventHint> {
-    public captureException(event: ScreenCapEvent, hint?: ScreenCapEventHint, scope?: Scope): string | undefined {
+    public captureScreenCap(event: ScreenCapEvent, hint?: ScreenCapEventHint, scope?: Scope): string | undefined {
         let eventId: string | undefined = hint && hint.event_id;
         this._processing = true;
         this.processBeforeSend(event, hint, scope).then(finalEvent => {
