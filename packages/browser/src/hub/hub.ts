@@ -1,7 +1,7 @@
 import {
-  Scope,
   Hub as HubInterface,
 } from '../types';
+import { Scope } from './scope';
 import { getGlobalObject } from '../utils';
 
 import { Carrier, Layer } from './interfaces';
@@ -11,7 +11,7 @@ export const API_VERSION = 1;
 /**
  * @inheritDoc
  */
-export abstract class Hub implements HubInterface {
+export class Hub implements HubInterface {
   /** Is a {@link Layer}[] containing the client and scope */
   private readonly _stack: Layer[] = [];
 
@@ -23,7 +23,7 @@ export abstract class Hub implements HubInterface {
    * @param scope bound to the hub.
    * @param version number, higher number means higher priority.
    */
-  public constructor(scope: Scope, client?: any, private readonly _version: number = API_VERSION) {
+  public constructor(scope: Scope = new Scope(), client?: any, private readonly _version: number = API_VERSION) {
     this._stack.push({ client, scope });
   }
 
@@ -134,7 +134,7 @@ export function hasHubOnCarrier<B extends Hub>(carrier: Carrier<B>, key: string)
   return false;
 }
 
-export type HubClass<B extends Hub, S extends Scope> = new (scope: S) => B;
+export type HubClass<B extends Hub, S extends Scope> = new (scope?: S) => B;
 
 /**
  * This will create a new {@link Hub} and add to the passed object on

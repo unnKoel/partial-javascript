@@ -1,7 +1,6 @@
-import {Client} from '../client/client';
-import {Scope} from './scope';
-import {Severity} from './severity';
-import {EventHint} from './event';
+import { Scope } from './scope';
+import { Severity } from './severity';
+import { EventHint } from './event';
 
 /**
  * Internal class used to make sure we always have the latest internal functions
@@ -22,7 +21,7 @@ export interface Hub {
    * This binds the given client to the current scope.
    * @param client An SDK client (client) instance.
    */
-  bindClient(client?: Client<any>): void;
+  bindClient(client?: any): void;
 
   /**
    * Create a new scope to store context information.
@@ -61,7 +60,7 @@ export interface Hub {
   withScope(callback: (scope: Scope | undefined) => void): void;
 
   /** Returns the client of the top stack. */
-  getClient(): Client<any> | undefined;
+  getClient(): any;
 
   /**
    * Callback to set context information onto the scope.

@@ -1,5 +1,6 @@
 import { Event, EventHint } from '../../types/event';
-import { ExceptionOptions, Scope } from '../../types';
+import { Scope } from '../../hub/scope';
+import { ExceptionOptions } from '../../types';
 import { Severity } from '../../types/severity';
 import { Transport } from '../../transport/transport';
 import { BaseClient } from '../baseclient';
@@ -37,7 +38,7 @@ export abstract class ExceptionClient<B extends Backend, O extends ExceptionOpti
 
     this._getBackend()
       .eventFromException(exception, hint)
-      .then(event => super.processBeforeSend(event, hint, scope))
+      .then(event => this.processBeforeSend(event, hint, scope))
       .then(finalEvent => {
         // We need to check for finalEvent in case beforeSend returned null
         eventId = finalEvent && finalEvent.event_id;
@@ -64,7 +65,7 @@ export abstract class ExceptionClient<B extends Backend, O extends ExceptionOpti
       : this._getBackend().eventFromException(message, hint);
 
     promisedEvent
-      .then(event => super.processBeforeSend(event, hint, scope))
+      .then(event => this.processBeforeSend(event, hint, scope))
       .then(finalEvent => {
         // We need to check for finalEvent in case beforeSend returned null
         eventId = finalEvent && finalEvent.event_id;
@@ -85,7 +86,7 @@ export abstract class ExceptionClient<B extends Backend, O extends ExceptionOpti
     let eventId: string | undefined = hint && hint.event_id;
     this._processing = true;
 
-    super.processBeforeSend(event, hint, scope)
+    this.processBeforeSend(event, hint, scope)
       .then(finalEvent => {
         // We need to check for finalEvent in case beforeSend returned null
         eventId = finalEvent && finalEvent.event_id;

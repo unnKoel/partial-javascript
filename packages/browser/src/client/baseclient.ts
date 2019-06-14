@@ -2,8 +2,9 @@ import { Client } from './client';
 import { Scope, Options } from '../types';
 import { Transport } from '../transport/transport';
 import { SyncPromise, logger } from '../utils';
+import { EventBase } from 'src/types/eventbase';
 
-export class BaseClient<O extends Options, E, H> implements Client<O, E, H> {
+export class BaseClient<O extends Options, E extends EventBase, H> implements Client<O, E, H> {
     /** Options passed to the SDK. */
     protected readonly _options: O;
 

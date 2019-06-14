@@ -1,4 +1,5 @@
 import { Hub as HubBase } from './hub';
+import { Scope } from './scope';
 import { uuid4 } from '../utils/misc';
 import { Severity, EventHint } from '../types';
 import { ExceptionHub as ExceptionHubInterface } from '../types/hub';
@@ -70,7 +71,7 @@ export function getCurrentExceptionHub(): ExceptionHub {
   const registry = getMainCarrier<ExceptionHub>();
 
   // If there's no hub, or its an old API, assign a new one
-  if (!hasHubOnCarrier<ExceptionHub>(registry, hubName) || getHubFromCarrier<ExceptionHub>(registry, hubName, ExceptionHub).isOlderThan(API_VERSION)) {
+  if (!hasHubOnCarrier<ExceptionHub>(registry, hubName) || getHubFromCarrier<ExceptionHub, Scope>(registry, hubName, ExceptionHub).isOlderThan(API_VERSION)) {
     setHubOnCarrier(registry, hubName, new ExceptionHub());
   }
 

@@ -1,5 +1,5 @@
 import { Hub } from './hub';
-import { Scope } from '../types/scope';
+import { Scope } from './scope';
 
 /**
  * A layer in the process stack.

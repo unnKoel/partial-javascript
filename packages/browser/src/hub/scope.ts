@@ -1,13 +1,12 @@
-import { EventProcessor, Scope as ScopeInterface, User } from '../types';
-import { getGlobalObject, isThenable, normalize, SyncPromise } from '../utils';
-
-type ScopeClass<P, S extends Scope<P>> = new () => S;
+import { Scope as ScopeInterface, User } from '../types';
+import { isThenable, normalize, SyncPromise } from '../utils';
+import { EventBase } from 'src/types/eventbase';
 
 /**
  * Holds additional event information. {@link Scope.applyToEvent} will be
  * called by the client before an event will be sent.
  */
-export abstract class Scope implements ScopeInterface {
+export class Scope implements ScopeInterface {
     /** Flag if notifiying is happening. */
     protected _notifyingListeners: boolean = false;
 
@@ -39,18 +38,15 @@ export abstract class Scope implements ScopeInterface {
         return this;
     }
 
-
-    public clone(): Scope<P> {
-        const newScope = new ScopeClass();
-        Object.assign(newScope, scope, {
+    public clone(): Scope {
+        const newScope = new Scope();
+        Object.assign(newScope, this, {
             _scopeListeners: [],
         });
-        if (scope) {
-            newScope._tags = { ...scope._tags };
-            newScope._extra = { ...scope._extra };
-            newScope._user = scope._user;
-            newScope._eventProcessors = [...scope._eventProcessors];
-        }
+        newScope._tags = { ...this._tags };
+        newScope._extra = { ...this._extra };
+        newScope._user = this._user;
+        newScope._processors = [...this._processors];
         return newScope;
     }
 
@@ -149,24 +145,6 @@ export abstract class Scope implements ScopeInterface {
         return this;
     }
 
-    // /**
-    //  * Inherit values from the parent scope.
-    //  * @param scope to clone.
-    //  */
-    // public clone(scope?: Scope): Scope {
-    //     const newScope = new Scope();
-    //     Object.assign(newScope, scope, {
-    //         _scopeListeners: [],
-    //     });
-    //     if (scope) {
-    //         newScope._tags = { ...scope._tags };
-    //         newScope._extra = { ...scope._extra };
-    //         newScope._user = scope._user;
-    //         newScope._eventProcessors = [...scope._eventProcessors];
-    //     }
-    //     return newScope;
-    // }
-
     /**
      * @inheritDoc
      */
@@ -187,35 +165,19 @@ export abstract class Scope implements ScopeInterface {
      * @param maxBreadcrumbs number of max breadcrumbs to merged into event.
      * @hidden
      */
-    // public applyToEvent(event: Event, hint?: EventHint): SyncPromise<Event | null> {
-    //     if (this._extra && Object.keys(this._extra).length) {
-    //         event.extra = { ...this._extra, ...event.extra };
-    //     }
-    //     if (this._tags && Object.keys(this._tags).length) {
-    //         event.tags = { ...this._tags, ...event.tags };
-    //     }
-    //     if (this._user && Object.keys(this._user).length) {
-    //         event.user = { ...this._user, ...event.user };
-    //     }
+    public applyToEvent<E extends EventBase, H>(event: E, hint?: H | undefined): SyncPromise<E | null> {
+        if (this._extra && Object.keys(this._extra).length) {
+            event.extra = { ...this._extra, ...event.extra };
+        }
 
-    //     return this._notifyEventProcessors([...getGlobalEventProcessors(), ...this._eventProcessors], event, hint);
-    // }
-}
+        if (this._tags && Object.keys(this._tags).length) {
+            event.tags = { ...this._tags, ...event.tags };
+        }
 
-/**
- * Retruns the global event processors.
- */
-function getGlobalEventProcessors(): EventProcessor[] {
-    const global = getGlobalObject<Window | NodeJS.Global>();
-    global.__SENTRY__ = global.__SENTRY__ || {};
-    global.__SENTRY__.globalEventProcessors = global.__SENTRY__.globalEventProcessors || [];
-    return global.__SENTRY__.globalEventProcessors;
-}
+        if (this._user && Object.keys(this._user).length) {
+            event.user = { ...this._user, ...event.user };
+        }
 
-/**
- * Add a EventProcessor to be kept globally.
- * @param callback EventProcessor to add
- */
-export function addGlobalEventProcessor(callback: EventProcessor): void {
-    getGlobalEventProcessors().push(callback);
+        return this._notifyProcessors([...this._processors], event, hint);
+    }
 }

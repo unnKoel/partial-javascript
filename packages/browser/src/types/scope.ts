@@ -1,5 +1,6 @@
 import { User } from './user';
 import { SyncPromise } from 'src/utils';
+import { EventBase } from './eventbase';
 
 /**
  * 基础Scope接口
@@ -46,5 +47,5 @@ export interface Scope {
 
   clone(): Scope;
 
-  applyToEvent<E, H>(event: E, hint?: H): SyncPromise<E | null>
+  applyToEvent<E extends EventBase, H>(event: E, hint?: H): SyncPromise<E | null>
 }
