@@ -1,4 +1,14 @@
-import * as tslib_1 from "tslib";
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 import { rebuild, buildNodeWithSN } from "@partial/rrweb-snapshot";
 import * as mittProxy from "mitt";
 import * as smoothscroll from "smoothscroll-polyfill";
@@ -9,13 +19,11 @@ import getInjectStyleRules from "./styles/inject-style";
 import "./styles/style.css";
 var SKIP_TIME_THRESHOLD = 10 * 1000;
 var SKIP_TIME_INTERVAL = 5 * 1000;
-// https://github.com/rollup/rollup/issues/1267#issuecomment-296395734
-// tslint:disable-next-line
 var mitt = mittProxy.default || mittProxy;
 var REPLAY_CONSOLE_PREFIX = "[replayer]";
-var Replayer = /** @class */ (function () {
+var Replayer = (function () {
     function Replayer(events, config) {
-        this.events = []; //事件数组
+        this.events = [];
         this.emitter = mitt();
         this.baselineTime = 0;
         this.noramlSpeed = -1;
@@ -63,40 +71,21 @@ var Replayer = /** @class */ (function () {
     Replayer.prototype.getTimeOffset = function () {
         return this.baselineTime - this.events[0].timestamp;
     };
-    /**
-     * This API was designed to be used as play at any time offset.
-     * Since we minimized the data collected from recorder, we do not
-     * have the ability of undo an event.
-     * So the implementation of play at any time offset will always iterate
-     * all of the events, cast event before the offset synchronously
-     * and cast event after the offset asynchronously with timer.
-     * @param timeOffset number
-     */
     Replayer.prototype.play = function (timeOffset) {
-        var e_1, _a;
         if (timeOffset === void 0) { timeOffset = 0; }
         this.timer.clear();
         this.baselineTime = this.events[0].timestamp + timeOffset;
         var actions = new Array();
-        try {
-            for (var _b = tslib_1.__values(this.events), _c = _b.next(); !_c.done; _c = _b.next()) {
-                var event_1 = _c.value;
-                var isSync = event_1.timestamp < this.baselineTime;
-                var castFn = this.getCastFn(event_1, isSync);
-                if (isSync) {
-                    castFn();
-                }
-                else {
-                    actions.push({ doAction: castFn, delay: this.getDelay(event_1) });
-                }
+        for (var _i = 0, _a = this.events; _i < _a.length; _i++) {
+            var event_1 = _a[_i];
+            var isSync = event_1.timestamp < this.baselineTime;
+            var castFn = this.getCastFn(event_1, isSync);
+            if (isSync) {
+                castFn();
             }
-        }
-        catch (e_1_1) { e_1 = { error: e_1_1 }; }
-        finally {
-            try {
-                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+            else {
+                actions.push({ doAction: castFn, delay: this.getDelay(event_1) });
             }
-            finally { if (e_1) throw e_1.error; }
         }
         this.timer.addActions(actions);
         this.timer.start();
@@ -107,31 +96,21 @@ var Replayer = /** @class */ (function () {
         this.emitter.emit(ReplayerEvents.Pause);
     };
     Replayer.prototype.resume = function (timeOffset) {
-        var e_2, _a;
         if (timeOffset === void 0) { timeOffset = 0; }
         this.timer.clear();
         this.baselineTime = this.events[0].timestamp + timeOffset;
         var actions = new Array();
-        try {
-            for (var _b = tslib_1.__values(this.events), _c = _b.next(); !_c.done; _c = _b.next()) {
-                var event_2 = _c.value;
-                if (event_2.timestamp <= this.lastPlayedEvent.timestamp ||
-                    event_2 === this.lastPlayedEvent) {
-                    continue;
-                }
-                var castFn = this.getCastFn(event_2);
-                actions.push({
-                    doAction: castFn,
-                    delay: this.getDelay(event_2)
-                });
+        for (var _i = 0, _a = this.events; _i < _a.length; _i++) {
+            var event_2 = _a[_i];
+            if (event_2.timestamp <= this.lastPlayedEvent.timestamp ||
+                event_2 === this.lastPlayedEvent) {
+                continue;
             }
-        }
-        catch (e_2_1) { e_2 = { error: e_2_1 }; }
-        finally {
-            try {
-                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-            }
-            finally { if (e_2) throw e_2.error; }
+            var castFn = this.getCastFn(event_2);
+            actions.push({
+                doAction: castFn,
+                delay: this.getDelay(event_2)
+            });
         }
         this.timer.addActions(actions);
         this.timer.start();
@@ -141,9 +120,6 @@ var Replayer = /** @class */ (function () {
         var castFn = this.getCastFn(event, true);
         castFn();
     };
-    /**
-     * 初始化dom
-     */
     Replayer.prototype.setupDom = function () {
         this.wrapper = document.createElement("div");
         this.wrapper.classList.add("replayer-wrapper");
@@ -160,14 +136,10 @@ var Replayer = /** @class */ (function () {
         this.iframe.width = dimension.width + "px";
         this.iframe.height = dimension.height + "px";
     };
-    // TODO: add speed to mouse move timestamp calculation
     Replayer.prototype.getDelay = function (event) {
-        // Mouse move events was recorded in a throttle function,
-        // so we need to find the real timestamp by traverse the time offsets.
         if (event.type === EventType.IncrementalSnapshot &&
             event.data.source === IncrementalSource.MouseMove) {
             var firstOffset = event.data.positions[0].timeOffset;
-            // timeOffset is a negative offset to event.timestamp
             var firstTimestamp = event.timestamp + firstOffset;
             event.delay = firstTimestamp - this.baselineTime;
             return firstTimestamp - this.baselineTime;
@@ -199,34 +171,24 @@ var Replayer = /** @class */ (function () {
                 break;
             case EventType.IncrementalSnapshot:
                 castFn = function () {
-                    var e_3, _a;
                     _this.applyIncremental(event, isSync);
                     if (event === _this.nextUserInteractionEvent) {
                         _this.nextUserInteractionEvent = null;
                         _this.restoreSpeed();
                     }
                     if (_this.config.skipInactive && !_this.nextUserInteractionEvent) {
-                        try {
-                            for (var _b = tslib_1.__values(_this.events), _c = _b.next(); !_c.done; _c = _b.next()) {
-                                var _event = _c.value;
-                                if (_event.timestamp <= event.timestamp) {
-                                    continue;
-                                }
-                                if (_this.isUserInteraction(_event)) {
-                                    if (_event.delay - event.delay >
-                                        SKIP_TIME_THRESHOLD * _this.config.speed) {
-                                        _this.nextUserInteractionEvent = _event;
-                                    }
-                                    break;
-                                }
+                        for (var _i = 0, _a = _this.events; _i < _a.length; _i++) {
+                            var _event = _a[_i];
+                            if (_event.timestamp <= event.timestamp) {
+                                continue;
                             }
-                        }
-                        catch (e_3_1) { e_3 = { error: e_3_1 }; }
-                        finally {
-                            try {
-                                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                            if (_this.isUserInteraction(_event)) {
+                                if (_event.delay - event.delay >
+                                    SKIP_TIME_THRESHOLD * _this.config.speed) {
+                                    _this.nextUserInteractionEvent = _event;
+                                }
+                                break;
                             }
-                            finally { if (e_3) throw e_3.error; }
                         }
                         if (_this.nextUserInteractionEvent) {
                             _this.noramlSpeed = _this.config.speed;
@@ -270,9 +232,6 @@ var Replayer = /** @class */ (function () {
         this.emitter.emit(ReplayerEvents.FullsnapshotRebuilded);
         this.waitForStylesheetLoad();
     };
-    /**
-     * pause when loading style sheet, resume when loaded all timeout exceed
-     */
     Replayer.prototype.waitForStylesheetLoad = function () {
         var _this = this;
         var head = this.iframe.contentDocument.head;
@@ -288,7 +247,6 @@ var Replayer = /** @class */ (function () {
                         _this.emitter.emit(ReplayerEvents.LoadStylesheetStart);
                         timer_1 = window.setTimeout(function () {
                             _this.resume(_this.timer.timeOffset);
-                            // mark timer was called
                             timer_1 = -1;
                         }, _this.config.loadTimeout);
                     }
@@ -307,17 +265,11 @@ var Replayer = /** @class */ (function () {
             });
         }
     };
-    /**
-     * 应用界面增量
-     * @param e
-     * @param isSync
-     */
     Replayer.prototype.applyIncremental = function (e, isSync) {
         var _this = this;
         var d = e.data;
         switch (d.source) {
             case IncrementalSource.Mutation: {
-                // 处理节点删除
                 d.removes.forEach(function (mutation) {
                     var target = mirror.getNode(mutation.id);
                     if (!target) {
@@ -327,14 +279,12 @@ var Replayer = /** @class */ (function () {
                     if (!parent) {
                         return _this.warnNodeNotFound(d, mutation.parentId);
                     }
-                    // target may be removed with its parents before
                     mirror.removeNodeFromMap(target);
                     if (parent) {
                         parent.removeChild(target);
                     }
                 });
-                // 新增节点处理
-                var missingNodeMap_1 = tslib_1.__assign({}, this.missingNodeRetryMap);
+                var missingNodeMap_1 = __assign({}, this.missingNodeRetryMap);
                 d.adds.forEach(function (mutation) {
                     var target = buildNodeWithSN(mutation.node, _this.iframe.contentDocument, mirror.map, true);
                     var parent = mirror.getNode(mutation.parentId);
@@ -374,7 +324,6 @@ var Replayer = /** @class */ (function () {
                 if (Object.keys(missingNodeMap_1).length) {
                     Object.assign(this.missingNodeRetryMap, missingNodeMap_1);
                 }
-                // 新增文本处理
                 d.texts.forEach(function (mutation) {
                     var target = mirror.getNode(mutation.id);
                     if (!target) {
@@ -382,7 +331,6 @@ var Replayer = /** @class */ (function () {
                     }
                     target.textContent = mutation.value;
                 });
-                // 新增属性处理
                 d.attributes.forEach(function (mutation) {
                     var target = mirror.getNode(mutation.id);
                     if (!target) {
@@ -403,7 +351,6 @@ var Replayer = /** @class */ (function () {
                 break;
             }
             case IncrementalSource.MouseMove:
-                // 鼠标移动，通过div图片伪造了一个鼠标出来
                 if (isSync) {
                     var lastPosition = d.positions[d.positions.length - 1];
                     this.moveAndHover(d, lastPosition.x, lastPosition.y, lastPosition.id);
@@ -421,10 +368,6 @@ var Replayer = /** @class */ (function () {
                 }
                 break;
             case IncrementalSource.MouseInteraction: {
-                /**
-                 * 鼠标交互事件触发，在点击时，模拟了下点击效果；
-                 * Same as the situation of missing input target.
-                 */
                 if (d.id === -1) {
                     break;
                 }
@@ -451,17 +394,9 @@ var Replayer = /** @class */ (function () {
                         }
                         break;
                     case MouseInteractions.Click:
-                        /**
-                         * Click has no visual impact when replaying and may
-                         * trigger navigation when apply to an <a> link.
-                         * So we will not call click(), instead we add an
-                         * animation to the mouse element which indicate user
-                         * clicked at this moment.
-                         */
                         if (!isSync) {
                             this.moveAndHover(d, d.x, d.y, d.id);
                             this.mouse.classList.remove("active");
-                            // tslint:disable-next-line
                             void this.mouse.offsetWidth;
                             this.mouse.classList.add("active");
                         }
@@ -472,10 +407,6 @@ var Replayer = /** @class */ (function () {
                 break;
             }
             case IncrementalSource.Scroll: {
-                /**
-                 * 滚动处理
-                 * Same as the situation of missing input target.
-                 */
                 if (d.id === -1) {
                     break;
                 }
@@ -496,10 +427,6 @@ var Replayer = /** @class */ (function () {
                         target.scrollLeft = d.x;
                     }
                     catch (error) {
-                        /**
-                         * Seldomly we may found scroll target was removed before
-                         * its last scroll event.
-                         */
                     }
                 }
                 break;
@@ -511,12 +438,6 @@ var Replayer = /** @class */ (function () {
                 });
                 break;
             case IncrementalSource.Input: {
-                /**
-                 * Input event on an unserialized node usually means the event
-                 * was synchrony triggered programmatically after the node was
-                 * created. This means there was not an user observable interaction
-                 * and we do not need to replay it.
-                 */
                 if (d.id === -1) {
                     break;
                 }
@@ -529,7 +450,6 @@ var Replayer = /** @class */ (function () {
                     target.value = d.text;
                 }
                 catch (error) {
-                    // for safe
                 }
                 break;
             }
@@ -603,16 +523,9 @@ var Replayer = /** @class */ (function () {
         console.warn(REPLAY_CONSOLE_PREFIX, "Node with id '" + id + "' not found in", d);
     };
     Replayer.prototype.debugNodeNotFound = function (d, id) {
-        /**
-         * There maybe some valid scenes of node not being found.
-         * Because DOM events are macrotask and MutationObserver callback
-         * is microtask, so events fired on a removed DOM may emit
-         * snapshots in the reverse order.
-         */
         if (!this.config.showDebug) {
             return;
         }
-        // tslint:disable-next-line: no-console
         console.log(REPLAY_CONSOLE_PREFIX, "Node with id '" + id + "' not found in", d);
     };
     return Replayer;

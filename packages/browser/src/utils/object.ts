@@ -1,4 +1,4 @@
-import { ExtendedError, WrappedFunction } from '@sentry/types';
+import { ExtendedError, WrappedFunction } from '../types';
 
 import { isError, isPrimitive, isSyntheticEvent } from './is';
 import { Memo } from './memo';

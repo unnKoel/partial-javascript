@@ -17,7 +17,7 @@ function wrapEvent(e: event): eventWithTime {
   };
 }
 
-function record(options: recordOptions = {}): listenerHandler | undefined {
+function record(options: recordOptions = {}): listenerHandler | undefined | void {
   const {
     emit,
     checkoutEveryNms, //checkout every N millisecond.

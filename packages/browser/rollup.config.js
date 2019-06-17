@@ -1,11 +1,11 @@
-import { terser } from 'rollup-plugin-terser';
-import typescript from 'rollup-plugin-typescript2';
-import license from 'rollup-plugin-license';
-import resolve from 'rollup-plugin-node-resolve';
-import commonjs from 'rollup-plugin-commonjs';
+import { terser } from "rollup-plugin-terser";
+import typescript from "rollup-plugin-typescript2";
+import license from "rollup-plugin-license";
+import resolve from "rollup-plugin-node-resolve";
+import commonjs from "rollup-plugin-commonjs";
 
-const commitHash = require('child_process')
-  .execSync('git rev-parse --short HEAD', { encoding: 'utf-8' })
+const commitHash = require("child_process")
+  .execSync("git rev-parse --short HEAD", { encoding: "utf-8" })
   .trim();
 
 const terserInstance = terser({
@@ -14,56 +14,53 @@ const terserInstance = terser({
     // as mangler doesn't touch user-facing thing, however sentryWrapped is not, and it would be mangled into a minified version.
     // We need those full names to correctly detect our internal frames for stripping.
     // I listed all of them here just for the clarity sake, as they are all used in the frames manipulation process.
-    reserved: ['captureException', 'captureMessage', 'sentryWrapped'],
+    reserved: ["captureException", "captureMessage", "sentryWrapped"],
     properties: {
-      regex: /^_[^_]/,
-    },
-  },
+      regex: /^_[^_]/
+    }
+  }
 });
 
 const paths = {
-  '@sentry/utils': ['../utils/src'],
-  '@sentry/core': ['../core/src'],
-  '@sentry/hub': ['../hub/src'],
-  '@sentry/types': ['../types/src'],
-  '@sentry/minimal': ['../minimal/src'],
+  "@partial/rrweb": ["../rrweb/src"],
+  "@partial/rrweb-snapshot": ["../rrweb-snapshot/src"]
 };
 
 const plugins = [
   typescript({
-    tsconfig: 'tsconfig.build.json',
+    tsconfig: "tsconfig.build.json",
     tsconfigOverride: {
       compilerOptions: {
         declaration: false,
         declarationMap: false,
-        module: 'ES2015',
-        paths,
-      },
+        module: "ES2015",
+        paths
+      }
     },
-    include: ['*.ts+(|x)', '**/*.ts+(|x)', '../**/*.ts+(|x)'],
+    include: ["*.ts+(|x)", "**/*.ts+(|x)", "../**/*.ts+(|x)"]
   }),
   resolve({
-    mainFields: ['module'],
+    mainFields: ["module"]
   }),
-  commonjs(),
+  commonjs()
 ];
 
 const bundleConfig = {
-  input: 'src/index.ts',
+  input: "src/index.ts",
   output: {
-    format: 'iife',
-    name: 'Sentry',
+    format: "iife",
+    name: "Partial",
     sourcemap: true,
-    strict: false,
+    strict: false
   },
-  context: 'window',
+  context: "window",
   plugins: [
     ...plugins,
     license({
       sourcemap: true,
-      banner: `/*! @sentry/browser <%= pkg.version %> (${commitHash}) | https://github.com/getsentry/sentry-javascript */`,
-    }),
-  ],
+      banner: `/*! @partial/browser <%= pkg.version %> (${commitHash}) | https://github.com/unnKoel/partial-javascript */`
+    })
+  ]
 };
 
 export default [
@@ -71,69 +68,69 @@ export default [
     ...bundleConfig,
     output: {
       ...bundleConfig.output,
-      file: 'build/bundle.js',
-    },
+      file: "build/bundle.js"
+    }
   },
   {
     ...bundleConfig,
     output: {
       ...bundleConfig.output,
-      file: 'build/bundle.min.js',
+      file: "build/bundle.min.js"
     },
     // Uglify has to be at the end of compilation, BUT before the license banner
     plugins: bundleConfig.plugins
       .slice(0, -1)
       .concat(terserInstance)
-      .concat(bundleConfig.plugins.slice(-1)),
+      .concat(bundleConfig.plugins.slice(-1))
   },
   {
     ...bundleConfig,
     output: {
       ...bundleConfig.output,
-      file: 'build/bundle.es6.js',
+      file: "build/bundle.es6.js"
     },
     plugins: [
       typescript({
-        tsconfig: 'tsconfig.build.json',
+        tsconfig: "tsconfig.build.json",
         tsconfigOverride: {
           compilerOptions: {
             declaration: false,
             declarationMap: false,
-            module: 'ES2015',
+            module: "ES2015",
             paths,
-            target: 'es6',
-          },
+            target: "es6"
+          }
         },
-        include: ['*.ts+(|x)', '**/*.ts+(|x)', '../**/*.ts+(|x)'],
+        include: ["*.ts+(|x)", "**/*.ts+(|x)", "../**/*.ts+(|x)"]
       }),
-      ...plugins.slice(1),
-    ],
+      ...plugins.slice(1)
+    ]
   },
   {
     ...bundleConfig,
     output: {
       ...bundleConfig.output,
-      file: 'build/bundle.es6.min.js',
+      file: "build/bundle.es6.min.js"
     },
     plugins: [
       typescript({
-        tsconfig: 'tsconfig.build.json',
+        tsconfig: "tsconfig.build.json",
         tsconfigOverride: {
           compilerOptions: {
             declaration: false,
             declarationMap: false,
-            module: 'ES2015',
+            module: "ES2015",
             paths,
-            target: 'es6',
-          },
+            target: "es6"
+          }
         },
-        include: ['*.ts+(|x)', '**/*.ts+(|x)', '../**/*.ts+(|x)'],
+        include: ["*.ts+(|x)", "**/*.ts+(|x)", "../**/*.ts+(|x)"]
       }),
       ...plugins
         .slice(1)
         .slice(0, -1)
         .concat(terserInstance)
-        .concat(bundleConfig.plugins.slice(-1)),
-    ],
-  },
+        .concat(bundleConfig.plugins.slice(-1))
+    ]
+  }
 ];

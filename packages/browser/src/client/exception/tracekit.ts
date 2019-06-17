@@ -1,6 +1,6 @@
 // tslint:disable
 
-import { getGlobalObject, isError, isErrorEvent } from '@sentry/utils';
+import { getGlobalObject, isError, isErrorEvent } from '../../utils';
 
 /**
  * @hidden
@@ -335,7 +335,7 @@ TraceKit._report = (function reportModuleWrapper() {
     // this exception; otherwise, we will end up with an incomplete
     // stack trace
     setTimeout(
-      function() {
+      function () {
         if (lastException === ex) {
           processLastException();
         }
@@ -830,7 +830,7 @@ TraceKit._computeStackTrace = (function _computeStackTraceWrapper() {
       if (typeof item.func === 'undefined') {
         try {
           item.func = (parts as any).input.substring(0, (parts as any).input.indexOf('{'));
-        } catch (e) {}
+        } catch (e) { }
       }
 
       if ((funcs as any)['' + curr]) {
@@ -879,28 +879,28 @@ TraceKit._computeStackTrace = (function _computeStackTraceWrapper() {
       if (stack) {
         return stack;
       }
-    } catch (e) {}
+    } catch (e) { }
 
     try {
       stack = _computeStackTraceFromStackProp(ex);
       if (stack) {
         return stack;
       }
-    } catch (e) {}
+    } catch (e) { }
 
     try {
       stack = _computeStackTraceFromOperaMultiLineMessage(ex);
       if (stack) {
         return stack;
       }
-    } catch (e) {}
+    } catch (e) { }
 
     try {
       stack = _computeStackTraceByWalkingCallerChain(ex, depth + 1);
       if (stack) {
         return stack;
       }
-    } catch (e) {}
+    } catch (e) { }
 
     return {
       original: ex,

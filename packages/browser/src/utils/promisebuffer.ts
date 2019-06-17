@@ -1,8 +1,8 @@
-import { SentryError } from './error';
+import { PartialError } from './error';
 
 /** A simple queue that holds promises. */
 export class PromiseBuffer<T> {
-  public constructor(protected _limit?: number) {}
+  public constructor(protected _limit?: number) { }
 
   /** Internal set of queued Promises */
   private readonly _buffer: Array<Promise<T>> = [];
@@ -22,7 +22,7 @@ export class PromiseBuffer<T> {
    */
   public async add(task: Promise<T>): Promise<T> {
     if (!this.isReady()) {
-      return Promise.reject(new SentryError('Not adding Promise due to buffer limit reached.'));
+      return Promise.reject(new PartialError('Not adding Promise due to buffer limit reached.'));
     }
     if (this._buffer.indexOf(task) === -1) {
       this._buffer.push(task);

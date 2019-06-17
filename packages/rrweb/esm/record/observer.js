@@ -1,25 +1,18 @@
-import * as tslib_1 from "tslib";
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 import { serializeNodeWithId } from '@partial/rrweb-snapshot';
 import { mirror, throttle, on, hookSetter, getWindowHeight, getWindowWidth, isBlocked, isAncestorRemoved, } from '../utils';
 import { MouseInteractions, } from '../types';
 import { deepDelete, isParentRemoved, isParentDropped } from './collection';
-/**
- * Mutation observer will merge several mutations into an array and pass
- * it to the callback function, this may make tracing added nodes hard.
- * For example, if we append an element el_1 into body, and then append
- * another element el_2 into el_1, these two mutations may be passed to the
- * callback function together when the two operations were done.
- * Generally we need trace child nodes of newly added node, but in this
- * case if we count el_2 as el_1's child node in the first mutation record,
- * then we will count el_2 again in the secoond mutation record which was
- * duplicated.
- * To avoid of duplicate counting added nodes, we will use a Set to store
- * added nodes and its child nodes during iterate mutation records. Then
- * collect added nodes from the Set which will has no duplicate copy. But
- * this also cause newly added node will not be serialized with id ASAP,
- * which means all the id related calculation should be lazy too.
- * @param cb mutationCallBack
- */
 function initMutationObserver(cb, blockClass, inlineStylesheet) {
     var observer = new MutationObserver(function (mutations) {
         var texts = [];
@@ -62,7 +55,6 @@ function initMutationObserver(cb, blockClass, inlineStylesheet) {
                         };
                         attributes.push(item);
                     }
-                    // overwrite attribute if the mutations was triggered in same time
                     item.attributes[attributeName] = value;
                     break;
                 }
@@ -74,26 +66,13 @@ function initMutationObserver(cb, blockClass, inlineStylesheet) {
                         if (isBlocked(n, blockClass)) {
                             return;
                         }
-                        // removed node has not been serialized yet, just remove it from the Set
                         if (addsSet.has(n)) {
                             deepDelete(addsSet, n);
                             droppedSet.add(n);
                         }
                         else if (addsSet.has(target) && nodeId === -1) {
-                            /**
-                             * If target was newly added and removed child node was
-                             * not serialized, it means the child node has been removed
-                             * before callback fired, so we can ignore it.
-                             * TODO: verify this
-                             */
                         }
                         else if (isAncestorRemoved(target)) {
-                            /**
-                             * If parent id was not in the mirror map any more, it
-                             * means the parent node has already been removed. So
-                             * the node is also removed which we do not need to track
-                             * and replay.
-                             */
                         }
                         else {
                             removes.push({
@@ -132,19 +111,16 @@ function initMutationObserver(cb, blockClass, inlineStylesheet) {
                 id: mirror.getId(text.node),
                 value: text.value,
             }); })
-                // text mutation's id was not in the mirror map means the target node has been removed
                 .filter(function (text) { return mirror.has(text.id); }),
             attributes: attributes
                 .map(function (attribute) { return ({
                 id: mirror.getId(attribute.node),
                 attributes: attribute.attributes,
             }); })
-                // attribute mutation's id was not in the mirror map means the target node has been removed
                 .filter(function (attribute) { return mirror.has(attribute.id); }),
             removes: removes,
             adds: adds,
         };
-        // payload may be empty if the mutations happened in some blocked elements
         if (!payload.texts.length &&
             !payload.attributes.length &&
             !payload.removes.length &&
@@ -277,8 +253,6 @@ function initInputObserver(cb, blockClass, ignoreClass) {
             isChecked = target.checked;
         }
         cbWithDedup(target, { text: text, isChecked: isChecked });
-        // if a radio was checked
-        // the other radios with the same name attribute will be unchecked.
         var name = target.name;
         if (type === 'radio' && name && isChecked) {
             document
@@ -300,7 +274,7 @@ function initInputObserver(cb, blockClass, ignoreClass) {
             lastInputValue.isChecked !== v.isChecked) {
             lastInputValueMap.set(target, v);
             var id = mirror.getId(target);
-            cb(tslib_1.__assign({}, v, { id: id }));
+            cb(__assign({}, v, { id: id }));
         }
     }
     var handlers = [
@@ -315,14 +289,13 @@ function initInputObserver(cb, blockClass, ignoreClass) {
         [HTMLTextAreaElement.prototype, 'value'],
     ];
     if (propertyDescriptor && propertyDescriptor.set) {
-        handlers.push.apply(handlers, tslib_1.__spread(hookProperties.map(function (p) {
+        handlers.push.apply(handlers, hookProperties.map(function (p) {
             return hookSetter(p[0], p[1], {
                 set: function () {
-                    // mock to a normal event
                     eventHandler({ target: this });
                 },
             });
-        })));
+        }));
     }
     return function () {
         handlers.forEach(function (h) { return h(); });

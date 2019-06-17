@@ -1,11 +1,7 @@
-export * from './behaviorsdk';
-export * from './exceptionsdk';
-export * from './screencapsdk';
-
 import { BehaviorClient } from './client/behavior/behaviorclient';
 import { BrowserClient } from './client/exception/browserclient';
 import { ScreenCapClient } from './client/screencap/screencapclient';
-import { Breadcrumbs, GlobalHandlers, TryCatch } from './integrations';
+import { Breadcrumbs, GlobalHandlers, TryCatch, ScreenCaps } from './integrations';
 
 import { getCurrentExceptionHub } from './hub/exceptionHub';
 import { getCurrentBehaviorHub } from './hub/behaviorHub';
@@ -16,14 +12,18 @@ import { FetchTransport } from './transport/transport';
 import { BrowserOptions } from './client/exception/browserbackend';
 import { logger } from './utils';
 
+export * from './behaviorsdk';
+export * from './exceptionsdk';
+export * from './screencapsdk';
 
 export const defaultIntegrations = [
     new TryCatch(),
     new Breadcrumbs(),
-    new GlobalHandlers()
+    new GlobalHandlers(),
+    new ScreenCaps()
 ];
 
-interface Config {
+export interface Config {
     exception: BrowserOptions,
     behavior: Options,
     screencap: Options,

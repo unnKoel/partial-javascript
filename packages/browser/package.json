@@ -16,5 +16,13 @@
     "build:esm": "tsc -p tsconfig.esm.json",
     "build:esm:watch": "tsc -p tsconfig.esm.json -w --preserveWatchOutput",
     "build:watch": "run-p build:dist:watch build:esm:watch build:bundle:watch"
+  },
+  "devDependencies": {
+    "rollup": "^1.15.6",
+    "rollup-plugin-commonjs": "^10.0.0",
+    "rollup-plugin-license": "^0.9.0",
+    "rollup-plugin-node-resolve": "^5.0.3",
+    "rollup-plugin-terser": "^5.0.0",
+    "rollup-plugin-typescript2": "^0.21.1"
   }
 }

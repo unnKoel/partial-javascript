@@ -135,16 +135,3 @@ export class TryCatch implements Integration {
     ].forEach(this._wrapEventTarget.bind(this));
   }
 }
-
-/**
- * Safely extract function name from itself
- */
-function getFunctionName(fn: any): string {
-  try {
-    return (fn && fn.name) || '<anonymous>';
-  } catch (e) {
-    // Just accessing custom props in some Selenium environments
-    // can cause a "Permission denied" exception (see raven-js#495).
-    return '<anonymous>';
-  }
-}

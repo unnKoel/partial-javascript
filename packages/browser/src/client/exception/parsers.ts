@@ -1,5 +1,5 @@
-import { Event, Exception, StackFrame } from '@sentry/types';
-import { keysToEventMessage, normalizeToSize } from '@sentry/utils';
+import { Event, Exception, StackFrame } from '../../types';
+import { keysToEventMessage, normalizeToSize } from '../../utils';
 
 import { _computeStackTrace, StackFrame as TraceKitStackFrame, StackTrace as TraceKitStackTrace } from './tracekit';
 
@@ -39,6 +39,7 @@ export function eventFromPlainObject(exception: {}, syntheticException: Error | 
     extra: {
       __serialized__: normalizeToSize(exception),
     },
+    timestamp: Date.now(),
     message: `Non-Error exception captured with keys: ${keysToEventMessage(exceptionKeys)}`,
   };
 
@@ -60,6 +61,7 @@ export function eventFromStacktrace(stacktrace: TraceKitStackTrace): Event {
   const exception = exceptionFromStacktrace(stacktrace);
 
   return {
+    timestamp: Date.now(),
     exception: {
       values: [exception],
     },

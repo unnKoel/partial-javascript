@@ -1,9 +1,3 @@
-/**
- * Some utils to handle the mutation observer DOM records.
- * It should be more clear to extend the native data structure
- * like Set and Map, but currently Typescript does not support
- * that.
- */
 import { mirror } from '../utils';
 export function deepDelete(addsSet, n) {
     addsSet.delete(n);

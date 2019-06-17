@@ -1,27 +1,29 @@
-import * as tslib_1 from "tslib";
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 import { snapshot } from "@partial/rrweb-snapshot";
 import initObservers from "./observer";
 import { mirror, on, getWindowWidth, getWindowHeight } from "../utils";
 import { EventType, IncrementalSource } from "../types";
 function wrapEvent(e) {
-    return tslib_1.__assign({}, e, { timestamp: Date.now() });
+    return __assign({}, e, { timestamp: Date.now() });
 }
 function record(options) {
     if (options === void 0) { options = {}; }
-    var emit = options.emit, checkoutEveryNms = options.checkoutEveryNms, //checkout every N millisecond.
-    checkoutEveryNth = options.checkoutEveryNth, //checkout every N times.
-    _a = options.blockClass, //checkout every N times.
-    blockClass = _a === void 0 ? "rr-block" : _a, //  An element with the class name .rr-block will not be recorded.
-    _b = options.ignoreClass, //  An element with the class name .rr-block will not be recorded.
-    ignoreClass = _b === void 0 ? "rr-ignore" : _b, // don't record it's input event.
-    _c = options.inlineStylesheet, // don't record it's input event.
-    inlineStylesheet = _c === void 0 ? true : _c;
-    // runtime checks for user options
+    var emit = options.emit, checkoutEveryNms = options.checkoutEveryNms, checkoutEveryNth = options.checkoutEveryNth, _a = options.blockClass, blockClass = _a === void 0 ? "rr-block" : _a, _b = options.ignoreClass, ignoreClass = _b === void 0 ? "rr-ignore" : _b, _c = options.inlineStylesheet, inlineStylesheet = _c === void 0 ? true : _c;
     if (!emit) {
         throw new Error("emit function is required");
     }
     var lastFullSnapshotEvent;
-    var incrementalSnapshotCount = 0; //incremental snapshot count
+    var incrementalSnapshotCount = 0;
     var wrappedEmit = function (e, isCheckout) {
         emit(e, isCheckout);
         if (e.type === EventType.FullSnapshot) {
@@ -38,10 +40,6 @@ function record(options) {
             }
         }
     };
-    /**
-     * take full snapshot
-     * @param isCheckout
-     */
     function takeFullSnapshot(isCheckout) {
         if (isCheckout === void 0) { isCheckout = false; }
         wrappedEmit(wrapEvent({
@@ -52,7 +50,7 @@ function record(options) {
                 height: getWindowHeight()
             }
         }), isCheckout);
-        var _a = tslib_1.__read(snapshot(document, blockClass, inlineStylesheet), 2), node = _a[0], idNodeMap = _a[1];
+        var _a = snapshot(document, blockClass, inlineStylesheet), node = _a[0], idNodeMap = _a[1];
         if (!node) {
             return console.warn("Failed to snapshot the document");
         }
@@ -82,7 +80,7 @@ function record(options) {
                 mutationCb: function (m) {
                     return wrappedEmit(wrapEvent({
                         type: EventType.IncrementalSnapshot,
-                        data: tslib_1.__assign({ source: IncrementalSource.Mutation }, m)
+                        data: __assign({ source: IncrementalSource.Mutation }, m)
                     }));
                 },
                 mousemoveCb: function (positions) {
@@ -97,25 +95,25 @@ function record(options) {
                 mouseInteractionCb: function (d) {
                     return wrappedEmit(wrapEvent({
                         type: EventType.IncrementalSnapshot,
-                        data: tslib_1.__assign({ source: IncrementalSource.MouseInteraction }, d)
+                        data: __assign({ source: IncrementalSource.MouseInteraction }, d)
                     }));
                 },
                 scrollCb: function (p) {
                     return wrappedEmit(wrapEvent({
                         type: EventType.IncrementalSnapshot,
-                        data: tslib_1.__assign({ source: IncrementalSource.Scroll }, p)
+                        data: __assign({ source: IncrementalSource.Scroll }, p)
                     }));
                 },
                 viewportResizeCb: function (d) {
                     return wrappedEmit(wrapEvent({
                         type: EventType.IncrementalSnapshot,
-                        data: tslib_1.__assign({ source: IncrementalSource.ViewportResize }, d)
+                        data: __assign({ source: IncrementalSource.ViewportResize }, d)
                     }));
                 },
                 inputCb: function (v) {
                     return wrappedEmit(wrapEvent({
                         type: EventType.IncrementalSnapshot,
-                        data: tslib_1.__assign({ source: IncrementalSource.Input }, v)
+                        data: __assign({ source: IncrementalSource.Input }, v)
                     }));
                 },
                 blockClass: blockClass,
@@ -141,7 +139,6 @@ function record(options) {
         };
     }
     catch (error) {
-        // TODO: handle internal error
         console.warn(error);
     }
 }

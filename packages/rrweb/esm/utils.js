@@ -7,7 +7,6 @@ export function on(type, fn, target) {
 export var mirror = {
     map: {},
     getId: function (n) {
-        // if n is not a serialized INode, use -1 as its id.
         if (!n.__sn) {
             return -1;
         }
@@ -16,7 +15,6 @@ export var mirror = {
     getNode: function (id) {
         return mirror.map[id] || null;
     },
-    // TODO: use a weakmap to get rid of manually memory management
     removeNodeFromMap: function (n) {
         var id = n.__sn && n.__sn.id;
         delete mirror.map[id];
@@ -30,12 +28,10 @@ export var mirror = {
         return mirror.map.hasOwnProperty(id);
     },
 };
-// copy from underscore and modified
 export function throttle(func, wait, options) {
     if (options === void 0) { options = {}; }
     var timeout = null;
     var previous = 0;
-    // tslint:disable-next-line: only-arrow-functions
     return function () {
         var now = Date.now();
         if (!previous && options.leading === false) {
@@ -66,7 +62,6 @@ export function hookSetter(target, key, d) {
     Object.defineProperty(target, key, {
         set: function (value) {
             var _this = this;
-            // put hooked setter into event loop to avoid of set latency
             setTimeout(function () {
                 d.set.call(_this, value);
             }, 0);
@@ -116,7 +111,6 @@ export function isAncestorRemoved(target) {
         target.parentNode.nodeType === target.DOCUMENT_NODE) {
         return false;
     }
-    // if the root is not document, it means the node is not in the DOM tree anymore
     if (!target.parentNode) {
         return true;
     }

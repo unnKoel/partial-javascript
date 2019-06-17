@@ -1,26 +1,17 @@
-import * as tslib_1 from "tslib";
-var Timer = /** @class */ (function () {
+var Timer = (function () {
     function Timer(config, actions) {
         if (actions === void 0) { actions = []; }
         this.timeOffset = 0;
         this.actions = actions;
         this.config = config;
     }
-    /**
-     * Add an action after the timer starts.
-     * @param action
-     */
     Timer.prototype.addAction = function (action) {
         var index = this.findActionIndex(action);
         this.actions.splice(index, 0, action);
     };
-    /**
-     * Add all actions before the timer starts
-     * @param actions
-     */
     Timer.prototype.addActions = function (actions) {
         var _a;
-        (_a = this.actions).push.apply(_a, tslib_1.__spread(actions));
+        (_a = this.actions).push.apply(_a, actions);
     };
     Timer.prototype.start = function () {
         this.actions.sort(function (a1, a2) { return a1.delay - a2.delay; });

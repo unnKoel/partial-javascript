@@ -113,6 +113,7 @@ export class BrowserBackend implements Backend {
       event_id: hint && hint.event_id,
       level,
       message,
+      timestamp: Date.now()
     };
 
     if (hint && hint.syntheticException) {
