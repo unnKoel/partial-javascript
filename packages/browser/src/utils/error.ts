@@ -1,5 +1,5 @@
 /** An error emitted by Sentry SDKs and related utilities. */
-export class SentryError extends Error {
+export class PartialError extends Error {
   /** Display name of this error instance. */
   public name: string;
 

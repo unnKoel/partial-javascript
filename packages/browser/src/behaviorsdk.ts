@@ -61,6 +61,6 @@ export function withBehaviorScope(callback: (scope: Scope) => void): void {
  * @param method The method to call on the client/client.
  * @param args Arguments to pass to the client/fontend.
  */
-export function _callOnClient(method: string, ...args: any[]): void {
+export function _callOnBehaviorClient(method: string, ...args: any[]): void {
     callOnBehaviorHub<void>('_invokeClient', method, ...args);
 }

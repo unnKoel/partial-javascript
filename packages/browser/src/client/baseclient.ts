@@ -17,7 +17,7 @@ export class BaseClient<O extends Options, E extends EventBase, H> implements Cl
     /** backend for sending event to log server */
     protected _transport: Transport;
 
-    protected constructor(transport: Transport, options: O) {
+    constructor(transport: Transport, options: O) {
         this._options = options;
         this._transport = transport;
     }

@@ -20,7 +20,7 @@ export { Severity } from './severity';
 // export { Span } from './span';
 export { StackFrame } from './stackframe';
 export { Stacktrace } from './stacktrace';
-// export { Status } from './status';
+export { Status } from './status';
 // export { Thread } from './thread';
 // export { Transport, TransportOptions, TransportClass } from './transport';
 export { User } from './user';

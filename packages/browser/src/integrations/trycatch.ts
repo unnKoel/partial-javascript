@@ -1,5 +1,5 @@
-import { Integration, WrappedFunction } from '@sentry/types';
-import { fill, getGlobalObject } from '@sentry/utils';
+import { Integration, WrappedFunction } from '../types';
+import { fill, getGlobalObject } from '../utils';
 
 import { wrap } from './helpers';
 
@@ -20,33 +20,18 @@ export class TryCatch implements Integration {
 
   /** JSDoc */
   private _wrapTimeFunction(original: () => void): () => number {
-    return function(this: any, ...args: any[]): number {
+    return function (this: any, ...args: any[]): number {
       const originalCallback = args[0];
-      args[0] = wrap(originalCallback, {
-        mechanism: {
-          data: { function: getFunctionName(original) },
-          handled: true,
-          type: 'instrument',
-        },
-      });
+      args[0] = wrap(originalCallback);
       return original.apply(this, args);
     };
   }
 
   /** JSDoc */
   private _wrapRAF(original: any): (callback: () => void) => any {
-    return function(this: any, callback: () => void): () => void {
+    return function (this: any, callback: () => void): () => void {
       return original(
-        wrap(callback, {
-          mechanism: {
-            data: {
-              function: 'requestAnimationFrame',
-              handler: getFunctionName(original),
-            },
-            handled: true,
-            type: 'instrument',
-          },
-        }),
+        wrap(callback),
       );
     };
   }
@@ -60,27 +45,17 @@ export class TryCatch implements Integration {
       return;
     }
 
-    fill(proto, 'addEventListener', function(
+    fill(proto, 'addEventListener', function (
       original: () => void,
     ): (eventName: string, fn: EventListenerObject, options?: boolean | AddEventListenerOptions) => void {
-      return function(
+      return function (
         this: any,
         eventName: string,
         fn: EventListenerObject,
         options?: boolean | AddEventListenerOptions,
       ): (eventName: string, fn: EventListenerObject, capture?: boolean, secure?: boolean) => void {
         try {
-          fn.handleEvent = wrap(fn.handleEvent.bind(fn), {
-            mechanism: {
-              data: {
-                function: 'handleEvent',
-                handler: getFunctionName(fn),
-                target,
-              },
-              handled: true,
-              type: 'instrument',
-            },
-          });
+          fn.handleEvent = wrap(fn.handleEvent.bind(fn));
         } catch (err) {
           // can sometimes get 'Permission denied to access property "handle Event'
         }
@@ -88,26 +63,16 @@ export class TryCatch implements Integration {
         return original.call(
           this,
           eventName,
-          wrap((fn as any) as WrappedFunction, {
-            mechanism: {
-              data: {
-                function: 'addEventListener',
-                handler: getFunctionName(fn),
-                target,
-              },
-              handled: true,
-              type: 'instrument',
-            },
-          }),
+          wrap((fn as any) as WrappedFunction),
           options,
         );
       };
     });
 
-    fill(proto, 'removeEventListener', function(
+    fill(proto, 'removeEventListener', function (
       original: () => void,
     ): (this: any, eventName: string, fn: EventListenerObject, options?: boolean | EventListenerOptions) => () => void {
-      return function(
+      return function (
         this: any,
         eventName: string,
         fn: EventListenerObject,

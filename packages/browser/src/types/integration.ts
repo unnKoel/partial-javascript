@@ -1,5 +1,3 @@
-import { Hub } from '../hub/hub';
-
 /** Integration Class Interface */
 export interface IntegrationClass<T> {
   new(): T;
@@ -20,5 +18,5 @@ export interface Integration {
    * Sets the integration up only once.
    * This takes no options on purpose, options should be passed in the constructor
    */
-  setupOnce(getCurrentHub: () => Hub): void;
+  setupOnce(): void;
 }

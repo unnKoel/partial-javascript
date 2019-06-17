@@ -356,16 +356,7 @@ export class Breadcrumbs implements Integration {
       // TODO: Fix XHR types
       if (prop in xhr && typeof (xhr as { [key: string]: any })[prop] === 'function') {
         fill(xhr, prop, original =>
-          wrap(original, {
-            mechanism: {
-              data: {
-                function: prop,
-                handler: (original && original.name) || '<anonymous>',
-              },
-              handled: true,
-              type: 'instrument',
-            },
-          }),
+          wrap(original),
         );
       }
     }
@@ -430,17 +421,7 @@ export class Breadcrumbs implements Integration {
           if ('onreadystatechange' in xhr && typeof xhr.onreadystatechange === 'function') {
             fill(xhr, 'onreadystatechange', function (original: () => void): void {
               return wrap(
-                original,
-                {
-                  mechanism: {
-                    data: {
-                      function: 'onreadystatechange',
-                      handler: (original && original.name) || '<anonymous>',
-                    },
-                    handled: true,
-                    type: 'instrument',
-                  },
-                },
+                original, {},
                 onreadystatechangeHandler,
               );
             });

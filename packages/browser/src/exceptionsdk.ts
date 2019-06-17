@@ -100,6 +100,6 @@ export function withExceptionScope(callback: (scope: Scope) => void): void {
  * @param method The method to call on the client/client.
  * @param args Arguments to pass to the client/fontend.
  */
-export function _callOnClient(method: string, ...args: any[]): void {
+export function _callOnExceptionClient(method: string, ...args: any[]): void {
     callOnExceptionHub<void>('_invokeClient', method, ...args);
 }
