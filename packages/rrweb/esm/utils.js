@@ -1,10 +1,13 @@
-export function on(type, fn, target) {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+function on(type, fn, target) {
     if (target === void 0) { target = document; }
     var options = { capture: true, passive: true };
     target.addEventListener(type, fn, options);
     return function () { return target.removeEventListener(type, fn, options); };
 }
-export var mirror = {
+exports.on = on;
+exports.mirror = {
     map: {},
     getId: function (n) {
         if (!n.__sn) {
@@ -13,22 +16,22 @@ export var mirror = {
         return n.__sn.id;
     },
     getNode: function (id) {
-        return mirror.map[id] || null;
+        return exports.mirror.map[id] || null;
     },
     removeNodeFromMap: function (n) {
         var id = n.__sn && n.__sn.id;
-        delete mirror.map[id];
+        delete exports.mirror.map[id];
         if (n.childNodes) {
             n.childNodes.forEach(function (child) {
-                return mirror.removeNodeFromMap(child);
+                return exports.mirror.removeNodeFromMap(child);
             });
         }
     },
     has: function (id) {
-        return mirror.map.hasOwnProperty(id);
+        return exports.mirror.map.hasOwnProperty(id);
     },
 };
-export function throttle(func, wait, options) {
+function throttle(func, wait, options) {
     if (options === void 0) { options = {}; }
     var timeout = null;
     var previous = 0;
@@ -57,7 +60,8 @@ export function throttle(func, wait, options) {
         }
     };
 }
-export function hookSetter(target, key, d) {
+exports.throttle = throttle;
+function hookSetter(target, key, d) {
     var original = Object.getOwnPropertyDescriptor(target, key);
     Object.defineProperty(target, key, {
         set: function (value) {
@@ -72,17 +76,20 @@ export function hookSetter(target, key, d) {
     });
     return function () { return hookSetter(target, key, original || {}); };
 }
-export function getWindowHeight() {
+exports.hookSetter = hookSetter;
+function getWindowHeight() {
     return (window.innerHeight ||
         (document.documentElement && document.documentElement.clientHeight) ||
         (document.body && document.body.clientHeight));
 }
-export function getWindowWidth() {
+exports.getWindowHeight = getWindowHeight;
+function getWindowWidth() {
     return (window.innerWidth ||
         (document.documentElement && document.documentElement.clientWidth) ||
         (document.body && document.body.clientWidth));
 }
-export function isBlocked(node, blockClass) {
+exports.getWindowWidth = getWindowWidth;
+function isBlocked(node, blockClass) {
     if (!node) {
         return false;
     }
@@ -102,9 +109,10 @@ export function isBlocked(node, blockClass) {
     }
     return isBlocked(node.parentNode, blockClass);
 }
-export function isAncestorRemoved(target) {
-    var id = mirror.getId(target);
-    if (!mirror.has(id)) {
+exports.isBlocked = isBlocked;
+function isAncestorRemoved(target) {
+    var id = exports.mirror.getId(target);
+    if (!exports.mirror.has(id)) {
         return true;
     }
     if (target.parentNode &&
@@ -116,4 +124,5 @@ export function isAncestorRemoved(target) {
     }
     return isAncestorRemoved(target.parentNode);
 }
+exports.isAncestorRemoved = isAncestorRemoved;
 //# sourceMappingURL=utils.js.map

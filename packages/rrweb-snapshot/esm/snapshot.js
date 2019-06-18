@@ -1,4 +1,3 @@
-import * as tslib_1 from "tslib";
 import { NodeType, } from './types';
 var _id = 1;
 function genId() {
@@ -42,7 +41,6 @@ var RELATIVE_PATH = /^(?!www\.|(?:http|ftp)s?:\/\/|[A-Za-z]:\\|\/\/).*/;
 var DATA_URI = /^(data:)([\w\/\+]+);(charset=[\w-]+|base64).*,(.*)/gi;
 export function absoluteToStylesheet(cssText, href) {
     return cssText.replace(URL_IN_CSS_REF, function (origin, path1, path2, path3) {
-        var e_1, _a;
         var filePath = path1 || path2 || path3;
         if (!filePath) {
             return origin;
@@ -59,26 +57,17 @@ export function absoluteToStylesheet(cssText, href) {
         var stack = href.split('/');
         var parts = filePath.split('/');
         stack.pop();
-        try {
-            for (var parts_1 = tslib_1.__values(parts), parts_1_1 = parts_1.next(); !parts_1_1.done; parts_1_1 = parts_1.next()) {
-                var part = parts_1_1.value;
-                if (part === '.') {
-                    continue;
-                }
-                else if (part === '..') {
-                    stack.pop();
-                }
-                else {
-                    stack.push(part);
-                }
+        for (var _i = 0, parts_1 = parts; _i < parts_1.length; _i++) {
+            var part = parts_1[_i];
+            if (part === '.') {
+                continue;
             }
-        }
-        catch (e_1_1) { e_1 = { error: e_1_1 }; }
-        finally {
-            try {
-                if (parts_1_1 && !parts_1_1.done && (_a = parts_1.return)) _a.call(parts_1);
+            else if (part === '..') {
+                stack.pop();
             }
-            finally { if (e_1) throw e_1.error; }
+            else {
+                stack.push(part);
+            }
         }
         return "url('" + stack.join('/') + "')";
     });
@@ -92,7 +81,6 @@ function isSVGElement(el) {
     return el.tagName === 'svg' || el instanceof SVGElement;
 }
 function serializeNode(n, doc, blockClass, inlineStylesheet) {
-    var e_2, _a;
     switch (n.nodeType) {
         case n.DOCUMENT_NODE:
             return {
@@ -120,29 +108,18 @@ function serializeNode(n, doc, blockClass, inlineStylesheet) {
             }
             var tagName = n.tagName.toLowerCase();
             var attributes = {};
-            try {
-                for (var _b = tslib_1.__values(Array.from(n.attributes)), _c = _b.next(); !_c.done; _c = _b.next()) {
-                    var _d = _c.value, name_1 = _d.name, value = _d.value;
-                    // relative path in attribute
-                    if (name_1 === 'src' || name_1 === 'href') {
-                        attributes[name_1] = absoluteToDoc(doc, value);
-                    }
-                    else if (name_1 === 'style') {
-                        attributes[name_1] = absoluteToStylesheet(value, location.href);
-                    }
-                    else {
-                        attributes[name_1] = value;
-                    }
+            for (var _i = 0, _a = Array.from(n.attributes); _i < _a.length; _i++) {
+                var _b = _a[_i], name_1 = _b.name, value = _b.value;
+                if (name_1 === 'src' || name_1 === 'href') {
+                    attributes[name_1] = absoluteToDoc(doc, value);
+                }
+                else if (name_1 === 'style') {
+                    attributes[name_1] = absoluteToStylesheet(value, location.href);
+                }
+                else {
+                    attributes[name_1] = value;
                 }
             }
-            catch (e_2_1) { e_2 = { error: e_2_1 }; }
-            finally {
-                try {
-                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                }
-                finally { if (e_2) throw e_2.error; }
-            }
-            // remote css
             if (tagName === 'link' && inlineStylesheet) {
                 var stylesheet = Array.from(doc.styleSheets).find(function (s) {
                     return s.href === n.href;
@@ -154,10 +131,8 @@ function serializeNode(n, doc, blockClass, inlineStylesheet) {
                     attributes._cssText = absoluteToStylesheet(cssText, stylesheet.href);
                 }
             }
-            // dynamic stylesheet
             if (tagName === 'style' &&
                 n.sheet &&
-                // TODO: Currently we only try to get dynamic stylesheet when it is an empty style element
                 !n.innerText.trim().length) {
                 var cssText = getCssRulesString(n
                     .sheet);
@@ -165,7 +140,6 @@ function serializeNode(n, doc, blockClass, inlineStylesheet) {
                     attributes._cssText = absoluteToStylesheet(cssText, location.href);
                 }
             }
-            // form fields
             if (tagName === 'input' ||
                 tagName === 'textarea' ||
                 tagName === 'select') {
@@ -186,7 +160,7 @@ function serializeNode(n, doc, blockClass, inlineStylesheet) {
                 }
             }
             if (needBlock_1) {
-                var _e = n.getBoundingClientRect(), width = _e.width, height = _e.height;
+                var _c = n.getBoundingClientRect(), width = _c.width, height = _c.height;
                 attributes.rr_width = width + "px";
                 attributes.rr_height = height + "px";
             }
@@ -199,8 +173,6 @@ function serializeNode(n, doc, blockClass, inlineStylesheet) {
                 needBlock: needBlock_1,
             };
         case n.TEXT_NODE:
-            // The parent node may not be a html element which has a tagName attribute.
-            // So just let it be undefined which is ok in this use case.
             var parentTagName = n.parentNode && n.parentNode.tagName;
             var textContent = n.textContent;
             var isStyle = parentTagName === 'STYLE' ? true : undefined;
@@ -229,28 +201,15 @@ function serializeNode(n, doc, blockClass, inlineStylesheet) {
             return false;
     }
 }
-/**
- * 序列化节点并带有唯一Id
- * @param n
- * @param doc
- * @param map
- * @param blockClass
- * @param skipChild 是否跳过子元素
- * @param inlineStylesheet 是否内联样式
- */
 export function serializeNodeWithId(n, doc, map, blockClass, skipChild, inlineStylesheet) {
-    var e_3, _a;
     if (skipChild === void 0) { skipChild = false; }
     if (inlineStylesheet === void 0) { inlineStylesheet = true; }
-    // serialize node.
     var _serializedNode = serializeNode(n, doc, blockClass, inlineStylesheet);
     if (!_serializedNode) {
-        // TODO: dev only
         console.warn(n, 'not serialized');
         return null;
     }
     var id;
-    // Try to reuse the previous id
     if ('__sn' in n) {
         id = n.__sn.id;
     }
@@ -260,31 +219,20 @@ export function serializeNodeWithId(n, doc, map, blockClass, skipChild, inlineSt
     var serializedNode = Object.assign(_serializedNode, { id: id });
     n.__sn = serializedNode;
     map[id] = n;
-    // recordChild 是否需要record 子元素
     var recordChild = !skipChild;
     if (serializedNode.type === NodeType.Element) {
         recordChild = recordChild && !serializedNode.needBlock;
-        // this property was not needed in replay side
         delete serializedNode.needBlock;
     }
     if ((serializedNode.type === NodeType.Document ||
         serializedNode.type === NodeType.Element) &&
         recordChild) {
-        try {
-            for (var _b = tslib_1.__values(Array.from(n.childNodes)), _c = _b.next(); !_c.done; _c = _b.next()) {
-                var childN = _c.value;
-                var serializedChildNode = serializeNodeWithId(childN, doc, map, blockClass, skipChild, inlineStylesheet);
-                if (serializedChildNode) {
-                    serializedNode.childNodes.push(serializedChildNode);
-                }
+        for (var _i = 0, _a = Array.from(n.childNodes); _i < _a.length; _i++) {
+            var childN = _a[_i];
+            var serializedChildNode = serializeNodeWithId(childN, doc, map, blockClass, skipChild, inlineStylesheet);
+            if (serializedChildNode) {
+                serializedNode.childNodes.push(serializedChildNode);
             }
-        }
-        catch (e_3_1) { e_3 = { error: e_3_1 }; }
-        finally {
-            try {
-                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-            }
-            finally { if (e_3) throw e_3.error; }
         }
     }
     return serializedNode;

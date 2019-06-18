@@ -38,7 +38,7 @@ export class Replayer {
   public timer: Timer; //时间执行器
 
   private events: eventWithTime[] = []; //事件数组
-  private config: playerConfig; //player配置
+  private config: playerConfig;//player配置
 
   private mouse: HTMLDivElement;
 
@@ -83,9 +83,10 @@ export class Replayer {
   }
 
   public setConfig(config: Partial<playerConfig>) {
-    Object.keys(config).forEach((key: keyof playerConfig) => {
-      this.config[key] = config[key]!;
-    });
+    this.config = Object.assign(this.config, config);
+    // Object.keys(config).forEach((key: keyof playerConfig) => {
+    //   this.config[key] = config[key]!;
+    // });
     if (!this.config.skipInactive) {
       this.noramlSpeed = -1;
     }

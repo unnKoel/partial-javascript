@@ -1,8 +1,6 @@
-import * as tslib_1 from "tslib";
 import { NodeType, } from './types';
 var tagMap = {
     script: 'noscript',
-    // camel case svg element tag names
     altglyph: 'altGlyph',
     altglyphdef: 'altGlyphDef',
     altglyphitem: 'altGlyphItem',
@@ -76,7 +74,6 @@ function buildNode(n, doc) {
                 node = doc.createElement(tagName);
             }
             for (var name_1 in n.attributes) {
-                // attribute names start with rr_ are internal attributes added by rrweb
                 if (n.attributes.hasOwnProperty(name_1) && !name_1.startsWith('rr_')) {
                     var value = n.attributes[name_1];
                     value = typeof value === 'boolean' ? '' : value;
@@ -102,11 +99,9 @@ function buildNode(n, doc) {
                         }
                     }
                     catch (error) {
-                        // skip invalid attribute
                     }
                 }
                 else {
-                    // handle internal attributes
                     if (n.attributes.rr_width) {
                         node.style.width = n.attributes.rr_width;
                     }
@@ -128,15 +123,12 @@ function buildNode(n, doc) {
     }
 }
 export function buildNodeWithSN(n, doc, map, skipChild) {
-    var e_1, _a;
     if (skipChild === void 0) { skipChild = false; }
     var node = buildNode(n, doc);
     if (!node) {
         return null;
     }
-    // use target document as root document
     if (n.type === NodeType.Document) {
-        // close before open to make sure document was closed
         doc.close();
         doc.open();
         node = doc;
@@ -145,24 +137,15 @@ export function buildNodeWithSN(n, doc, map, skipChild) {
     map[n.id] = node;
     if ((n.type === NodeType.Document || n.type === NodeType.Element) &&
         !skipChild) {
-        try {
-            for (var _b = tslib_1.__values(n.childNodes), _c = _b.next(); !_c.done; _c = _b.next()) {
-                var childN = _c.value;
-                var childNode = buildNodeWithSN(childN, doc, map);
-                if (!childNode) {
-                    console.warn('Failed to rebuild', childN);
-                }
-                else {
-                    node.appendChild(childNode);
-                }
+        for (var _i = 0, _a = n.childNodes; _i < _a.length; _i++) {
+            var childN = _a[_i];
+            var childNode = buildNodeWithSN(childN, doc, map);
+            if (!childNode) {
+                console.warn('Failed to rebuild', childN);
             }
-        }
-        catch (e_1_1) { e_1 = { error: e_1_1 }; }
-        finally {
-            try {
-                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+            else {
+                node.appendChild(childNode);
             }
-            finally { if (e_1) throw e_1.error; }
         }
     }
     return node;

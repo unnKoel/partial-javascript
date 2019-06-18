@@ -1,5 +1,7 @@
 {
   "compilerOptions": {
+    "declaration": true,
+    "declarationMap": true,
     "module": "commonjs",
     "noImplicitAny": true,
     "strictNullChecks": true,
@@ -39,7 +41,7 @@
     //   }
     // ],
     "baseUrl": "packages",
-    "types": ["node"],
+    // "types": ["node"],
     "paths": {
       "@partial/*": ["*/src"]
     }

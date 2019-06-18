@@ -1,3 +1,5 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 var Timer = (function () {
     function Timer(config, actions) {
         if (actions === void 0) { actions = []; }
@@ -63,5 +65,5 @@ var Timer = (function () {
     };
     return Timer;
 }());
-export default Timer;
+exports.default = Timer;
 //# sourceMappingURL=timer.js.map

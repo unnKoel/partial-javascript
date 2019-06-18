@@ -1,3 +1,4 @@
+"use strict";
 var __assign = (this && this.__assign) || function () {
     __assign = Object.assign || function(t) {
         for (var s, i = 1, n = arguments.length; i < n; i++) {
@@ -9,10 +10,11 @@ var __assign = (this && this.__assign) || function () {
     };
     return __assign.apply(this, arguments);
 };
-import { snapshot } from "@partial/rrweb-snapshot";
-import initObservers from "./observer";
-import { mirror, on, getWindowWidth, getWindowHeight } from "../utils";
-import { EventType, IncrementalSource } from "../types";
+Object.defineProperty(exports, "__esModule", { value: true });
+var rrweb_snapshot_1 = require("@partial/rrweb-snapshot");
+var observer_1 = require("./observer");
+var utils_1 = require("../utils");
+var types_1 = require("../types");
 function wrapEvent(e) {
     return __assign({}, e, { timestamp: Date.now() });
 }
@@ -26,11 +28,11 @@ function record(options) {
     var incrementalSnapshotCount = 0;
     var wrappedEmit = function (e, isCheckout) {
         emit(e, isCheckout);
-        if (e.type === EventType.FullSnapshot) {
+        if (e.type === types_1.EventType.FullSnapshot) {
             lastFullSnapshotEvent = e;
             incrementalSnapshotCount = 0;
         }
-        else if (e.type === EventType.IncrementalSnapshot) {
+        else if (e.type === types_1.EventType.IncrementalSnapshot) {
             incrementalSnapshotCount++;
             var exceedCount = checkoutEveryNth && incrementalSnapshotCount >= checkoutEveryNth;
             var exceedTime = checkoutEveryNms &&
@@ -43,20 +45,20 @@ function record(options) {
     function takeFullSnapshot(isCheckout) {
         if (isCheckout === void 0) { isCheckout = false; }
         wrappedEmit(wrapEvent({
-            type: EventType.Meta,
+            type: types_1.EventType.Meta,
             data: {
                 href: window.location.href,
-                width: getWindowWidth(),
-                height: getWindowHeight()
+                width: utils_1.getWindowWidth(),
+                height: utils_1.getWindowHeight()
             }
         }), isCheckout);
-        var _a = snapshot(document, blockClass, inlineStylesheet), node = _a[0], idNodeMap = _a[1];
+        var _a = rrweb_snapshot_1.snapshot(document, blockClass, inlineStylesheet), node = _a[0], idNodeMap = _a[1];
         if (!node) {
             return console.warn("Failed to snapshot the document");
         }
-        mirror.map = idNodeMap;
+        utils_1.mirror.map = idNodeMap;
         wrappedEmit(wrapEvent({
-            type: EventType.FullSnapshot,
+            type: types_1.EventType.FullSnapshot,
             data: {
                 node: node,
                 initialOffset: {
@@ -68,52 +70,52 @@ function record(options) {
     }
     try {
         var handlers_1 = [];
-        handlers_1.push(on("DOMContentLoaded", function () {
+        handlers_1.push(utils_1.on("DOMContentLoaded", function () {
             wrappedEmit(wrapEvent({
-                type: EventType.DomContentLoaded,
+                type: types_1.EventType.DomContentLoaded,
                 data: {}
             }));
         }));
         var init_1 = function () {
             takeFullSnapshot();
-            handlers_1.push(initObservers({
+            handlers_1.push(observer_1.default({
                 mutationCb: function (m) {
                     return wrappedEmit(wrapEvent({
-                        type: EventType.IncrementalSnapshot,
-                        data: __assign({ source: IncrementalSource.Mutation }, m)
+                        type: types_1.EventType.IncrementalSnapshot,
+                        data: __assign({ source: types_1.IncrementalSource.Mutation }, m)
                     }));
                 },
                 mousemoveCb: function (positions) {
                     return wrappedEmit(wrapEvent({
-                        type: EventType.IncrementalSnapshot,
+                        type: types_1.EventType.IncrementalSnapshot,
                         data: {
-                            source: IncrementalSource.MouseMove,
+                            source: types_1.IncrementalSource.MouseMove,
                             positions: positions
                         }
                     }));
                 },
                 mouseInteractionCb: function (d) {
                     return wrappedEmit(wrapEvent({
-                        type: EventType.IncrementalSnapshot,
-                        data: __assign({ source: IncrementalSource.MouseInteraction }, d)
+                        type: types_1.EventType.IncrementalSnapshot,
+                        data: __assign({ source: types_1.IncrementalSource.MouseInteraction }, d)
                     }));
                 },
                 scrollCb: function (p) {
                     return wrappedEmit(wrapEvent({
-                        type: EventType.IncrementalSnapshot,
-                        data: __assign({ source: IncrementalSource.Scroll }, p)
+                        type: types_1.EventType.IncrementalSnapshot,
+                        data: __assign({ source: types_1.IncrementalSource.Scroll }, p)
                     }));
                 },
                 viewportResizeCb: function (d) {
                     return wrappedEmit(wrapEvent({
-                        type: EventType.IncrementalSnapshot,
-                        data: __assign({ source: IncrementalSource.ViewportResize }, d)
+                        type: types_1.EventType.IncrementalSnapshot,
+                        data: __assign({ source: types_1.IncrementalSource.ViewportResize }, d)
                     }));
                 },
                 inputCb: function (v) {
                     return wrappedEmit(wrapEvent({
-                        type: EventType.IncrementalSnapshot,
-                        data: __assign({ source: IncrementalSource.Input }, v)
+                        type: types_1.EventType.IncrementalSnapshot,
+                        data: __assign({ source: types_1.IncrementalSource.Input }, v)
                     }));
                 },
                 blockClass: blockClass,
@@ -126,9 +128,9 @@ function record(options) {
             init_1();
         }
         else {
-            handlers_1.push(on("load", function () {
+            handlers_1.push(utils_1.on("load", function () {
                 wrappedEmit(wrapEvent({
-                    type: EventType.Load,
+                    type: types_1.EventType.Load,
                     data: {}
                 }));
                 init_1();
@@ -142,5 +144,5 @@ function record(options) {
         console.warn(error);
     }
 }
-export default record;
+exports.default = record;
 //# sourceMappingURL=index.js.map

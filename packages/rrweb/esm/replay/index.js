@@ -1,3 +1,4 @@
+"use strict";
 var __assign = (this && this.__assign) || function () {
     __assign = Object.assign || function(t) {
         for (var s, i = 1, n = arguments.length; i < n; i++) {
@@ -9,14 +10,15 @@ var __assign = (this && this.__assign) || function () {
     };
     return __assign.apply(this, arguments);
 };
-import { rebuild, buildNodeWithSN } from "@partial/rrweb-snapshot";
-import * as mittProxy from "mitt";
-import * as smoothscroll from "smoothscroll-polyfill";
-import Timer from "./timer";
-import { EventType, IncrementalSource, MouseInteractions, ReplayerEvents } from "../types";
-import { mirror } from "../utils";
-import getInjectStyleRules from "./styles/inject-style";
-import "./styles/style.css";
+Object.defineProperty(exports, "__esModule", { value: true });
+var rrweb_snapshot_1 = require("@partial/rrweb-snapshot");
+var mittProxy = require("mitt");
+var smoothscroll = require("smoothscroll-polyfill");
+var timer_1 = require("./timer");
+var types_1 = require("../types");
+var utils_1 = require("../utils");
+var inject_style_1 = require("./styles/inject-style");
+require("./styles/style.css");
 var SKIP_TIME_THRESHOLD = 10 * 1000;
 var SKIP_TIME_INTERVAL = 5 * 1000;
 var mitt = mittProxy.default || mittProxy;
@@ -44,7 +46,7 @@ var Replayer = (function () {
             liveMode: false
         };
         this.config = Object.assign({}, defaultConfig, config);
-        this.timer = new Timer(this.config);
+        this.timer = new timer_1.default(this.config);
         smoothscroll.polyfill();
         this.setupDom();
         this.emitter.on("resize", this.handleResize);
@@ -53,10 +55,7 @@ var Replayer = (function () {
         this.emitter.on(event, handler);
     };
     Replayer.prototype.setConfig = function (config) {
-        var _this = this;
-        Object.keys(config).forEach(function (key) {
-            _this.config[key] = config[key];
-        });
+        this.config = Object.assign(this.config, config);
         if (!this.config.skipInactive) {
             this.noramlSpeed = -1;
         }
@@ -89,11 +88,11 @@ var Replayer = (function () {
         }
         this.timer.addActions(actions);
         this.timer.start();
-        this.emitter.emit(ReplayerEvents.Start);
+        this.emitter.emit(types_1.ReplayerEvents.Start);
     };
     Replayer.prototype.pause = function () {
         this.timer.clear();
-        this.emitter.emit(ReplayerEvents.Pause);
+        this.emitter.emit(types_1.ReplayerEvents.Pause);
     };
     Replayer.prototype.resume = function (timeOffset) {
         if (timeOffset === void 0) { timeOffset = 0; }
@@ -114,7 +113,7 @@ var Replayer = (function () {
         }
         this.timer.addActions(actions);
         this.timer.start();
-        this.emitter.emit(ReplayerEvents.Resume);
+        this.emitter.emit(types_1.ReplayerEvents.Resume);
     };
     Replayer.prototype.addEvent = function (event) {
         var castFn = this.getCastFn(event, true);
@@ -137,8 +136,8 @@ var Replayer = (function () {
         this.iframe.height = dimension.height + "px";
     };
     Replayer.prototype.getDelay = function (event) {
-        if (event.type === EventType.IncrementalSnapshot &&
-            event.data.source === IncrementalSource.MouseMove) {
+        if (event.type === types_1.EventType.IncrementalSnapshot &&
+            event.data.source === types_1.IncrementalSource.MouseMove) {
             var firstOffset = event.data.positions[0].timeOffset;
             var firstTimestamp = event.timestamp + firstOffset;
             event.delay = firstTimestamp - this.baselineTime;
@@ -152,24 +151,24 @@ var Replayer = (function () {
         if (isSync === void 0) { isSync = false; }
         var castFn;
         switch (event.type) {
-            case EventType.DomContentLoaded:
-            case EventType.Load:
+            case types_1.EventType.DomContentLoaded:
+            case types_1.EventType.Load:
                 break;
-            case EventType.Meta:
+            case types_1.EventType.Meta:
                 castFn = function () {
-                    return _this.emitter.emit(ReplayerEvents.Resize, {
+                    return _this.emitter.emit(types_1.ReplayerEvents.Resize, {
                         width: event.data.width,
                         height: event.data.height
                     });
                 };
                 break;
-            case EventType.FullSnapshot:
+            case types_1.EventType.FullSnapshot:
                 castFn = function () {
                     _this.rebuildFullSnapshot(event);
                     _this.iframe.contentWindow.scrollTo(event.data.initialOffset);
                 };
                 break;
-            case EventType.IncrementalSnapshot:
+            case types_1.EventType.IncrementalSnapshot:
                 castFn = function () {
                     _this.applyIncremental(event, isSync);
                     if (event === _this.nextUserInteractionEvent) {
@@ -197,7 +196,7 @@ var Replayer = (function () {
                                 speed: Math.min(Math.round(skipTime / SKIP_TIME_INTERVAL), 360)
                             };
                             _this.setConfig(payload);
-                            _this.emitter.emit(ReplayerEvents.SkipStart, payload);
+                            _this.emitter.emit(types_1.ReplayerEvents.SkipStart, payload);
                         }
                     }
                 };
@@ -211,7 +210,7 @@ var Replayer = (function () {
             _this.lastPlayedEvent = event;
             if (event === _this.events[_this.events.length - 1]) {
                 _this.restoreSpeed();
-                _this.emitter.emit(ReplayerEvents.Finish);
+                _this.emitter.emit(types_1.ReplayerEvents.Finish);
             }
         };
         return wrappedCastFn;
@@ -221,15 +220,15 @@ var Replayer = (function () {
             console.warn("Found unresolved missing node map", this.missingNodeRetryMap);
         }
         this.missingNodeRetryMap = {};
-        mirror.map = rebuild(event.data.node, this.iframe.contentDocument)[1];
+        utils_1.mirror.map = rrweb_snapshot_1.rebuild(event.data.node, this.iframe.contentDocument)[1];
         var styleEl = document.createElement("style");
         var _a = this.iframe.contentDocument, documentElement = _a.documentElement, head = _a.head;
         documentElement.insertBefore(styleEl, head);
-        var injectStyleRules = getInjectStyleRules(this.config.blockClass);
+        var injectStyleRules = inject_style_1.default(this.config.blockClass);
         for (var idx = 0; idx < injectStyleRules.length; idx++) {
             styleEl.sheet.insertRule(injectStyleRules[idx], idx);
         }
-        this.emitter.emit(ReplayerEvents.FullsnapshotRebuilded);
+        this.emitter.emit(types_1.ReplayerEvents.FullsnapshotRebuilded);
         this.waitForStylesheetLoad();
     };
     Replayer.prototype.waitForStylesheetLoad = function () {
@@ -237,27 +236,27 @@ var Replayer = (function () {
         var head = this.iframe.contentDocument.head;
         if (head) {
             var unloadSheets_1 = new Set();
-            var timer_1;
+            var timer_2;
             head
                 .querySelectorAll('link[rel="stylesheet"]')
                 .forEach(function (css) {
                 if (!css.sheet) {
                     if (unloadSheets_1.size === 0) {
                         _this.pause();
-                        _this.emitter.emit(ReplayerEvents.LoadStylesheetStart);
-                        timer_1 = window.setTimeout(function () {
+                        _this.emitter.emit(types_1.ReplayerEvents.LoadStylesheetStart);
+                        timer_2 = window.setTimeout(function () {
                             _this.resume(_this.timer.timeOffset);
-                            timer_1 = -1;
+                            timer_2 = -1;
                         }, _this.config.loadTimeout);
                     }
                     unloadSheets_1.add(css);
                     css.addEventListener("load", function () {
                         unloadSheets_1.delete(css);
-                        if (unloadSheets_1.size === 0 && timer_1 !== -1) {
+                        if (unloadSheets_1.size === 0 && timer_2 !== -1) {
                             _this.resume(_this.timer.timeOffset);
-                            _this.emitter.emit(ReplayerEvents.LoadStylesheetEnd);
-                            if (timer_1) {
-                                window.clearTimeout(timer_1);
+                            _this.emitter.emit(types_1.ReplayerEvents.LoadStylesheetEnd);
+                            if (timer_2) {
+                                window.clearTimeout(timer_2);
                             }
                         }
                     });
@@ -269,35 +268,35 @@ var Replayer = (function () {
         var _this = this;
         var d = e.data;
         switch (d.source) {
-            case IncrementalSource.Mutation: {
+            case types_1.IncrementalSource.Mutation: {
                 d.removes.forEach(function (mutation) {
-                    var target = mirror.getNode(mutation.id);
+                    var target = utils_1.mirror.getNode(mutation.id);
                     if (!target) {
                         return _this.warnNodeNotFound(d, mutation.id);
                     }
-                    var parent = mirror.getNode(mutation.parentId);
+                    var parent = utils_1.mirror.getNode(mutation.parentId);
                     if (!parent) {
                         return _this.warnNodeNotFound(d, mutation.parentId);
                     }
-                    mirror.removeNodeFromMap(target);
+                    utils_1.mirror.removeNodeFromMap(target);
                     if (parent) {
                         parent.removeChild(target);
                     }
                 });
                 var missingNodeMap_1 = __assign({}, this.missingNodeRetryMap);
                 d.adds.forEach(function (mutation) {
-                    var target = buildNodeWithSN(mutation.node, _this.iframe.contentDocument, mirror.map, true);
-                    var parent = mirror.getNode(mutation.parentId);
+                    var target = rrweb_snapshot_1.buildNodeWithSN(mutation.node, _this.iframe.contentDocument, utils_1.mirror.map, true);
+                    var parent = utils_1.mirror.getNode(mutation.parentId);
                     if (!parent) {
                         return _this.warnNodeNotFound(d, mutation.parentId);
                     }
                     var previous = null;
                     var next = null;
                     if (mutation.previousId) {
-                        previous = mirror.getNode(mutation.previousId);
+                        previous = utils_1.mirror.getNode(mutation.previousId);
                     }
                     if (mutation.nextId) {
-                        next = mirror.getNode(mutation.nextId);
+                        next = utils_1.mirror.getNode(mutation.nextId);
                     }
                     if (mutation.previousId === -1 || mutation.nextId === -1) {
                         missingNodeMap_1[mutation.node.id] = {
@@ -325,14 +324,14 @@ var Replayer = (function () {
                     Object.assign(this.missingNodeRetryMap, missingNodeMap_1);
                 }
                 d.texts.forEach(function (mutation) {
-                    var target = mirror.getNode(mutation.id);
+                    var target = utils_1.mirror.getNode(mutation.id);
                     if (!target) {
                         return _this.warnNodeNotFound(d, mutation.id);
                     }
                     target.textContent = mutation.value;
                 });
                 d.attributes.forEach(function (mutation) {
-                    var target = mirror.getNode(mutation.id);
+                    var target = utils_1.mirror.getNode(mutation.id);
                     if (!target) {
                         return _this.warnNodeNotFound(d, mutation.id);
                     }
@@ -350,7 +349,7 @@ var Replayer = (function () {
                 });
                 break;
             }
-            case IncrementalSource.MouseMove:
+            case types_1.IncrementalSource.MouseMove:
                 if (isSync) {
                     var lastPosition = d.positions[d.positions.length - 1];
                     this.moveAndHover(d, lastPosition.x, lastPosition.y, lastPosition.id);
@@ -367,33 +366,33 @@ var Replayer = (function () {
                     });
                 }
                 break;
-            case IncrementalSource.MouseInteraction: {
+            case types_1.IncrementalSource.MouseInteraction: {
                 if (d.id === -1) {
                     break;
                 }
-                var event_3 = new Event(MouseInteractions[d.type].toLowerCase());
-                var target = mirror.getNode(d.id);
+                var event_3 = new Event(types_1.MouseInteractions[d.type].toLowerCase());
+                var target = utils_1.mirror.getNode(d.id);
                 if (!target) {
                     return this.debugNodeNotFound(d, d.id);
                 }
-                this.emitter.emit(ReplayerEvents.MouseInteraction, {
+                this.emitter.emit(types_1.ReplayerEvents.MouseInteraction, {
                     type: d.type,
                     target: target
                 });
                 switch (d.type) {
-                    case MouseInteractions.Blur:
+                    case types_1.MouseInteractions.Blur:
                         if (target.blur) {
                             target.blur();
                         }
                         break;
-                    case MouseInteractions.Focus:
+                    case types_1.MouseInteractions.Focus:
                         if (target.focus) {
                             target.focus({
                                 preventScroll: true
                             });
                         }
                         break;
-                    case MouseInteractions.Click:
+                    case types_1.MouseInteractions.Click:
                         if (!isSync) {
                             this.moveAndHover(d, d.x, d.y, d.id);
                             this.mouse.classList.remove("active");
@@ -406,11 +405,11 @@ var Replayer = (function () {
                 }
                 break;
             }
-            case IncrementalSource.Scroll: {
+            case types_1.IncrementalSource.Scroll: {
                 if (d.id === -1) {
                     break;
                 }
-                var target = mirror.getNode(d.id);
+                var target = utils_1.mirror.getNode(d.id);
                 if (!target) {
                     return this.debugNodeNotFound(d, d.id);
                 }
@@ -431,17 +430,17 @@ var Replayer = (function () {
                 }
                 break;
             }
-            case IncrementalSource.ViewportResize:
-                this.emitter.emit(ReplayerEvents.Resize, {
+            case types_1.IncrementalSource.ViewportResize:
+                this.emitter.emit(types_1.ReplayerEvents.Resize, {
                     width: d.width,
                     height: d.height
                 });
                 break;
-            case IncrementalSource.Input: {
+            case types_1.IncrementalSource.Input: {
                 if (d.id === -1) {
                     break;
                 }
-                var target = mirror.getNode(d.id);
+                var target = utils_1.mirror.getNode(d.id);
                 if (!target) {
                     return this.debugNodeNotFound(d, d.id);
                 }
@@ -482,7 +481,7 @@ var Replayer = (function () {
     Replayer.prototype.moveAndHover = function (d, x, y, id) {
         this.mouse.style.left = x + "px";
         this.mouse.style.top = y + "px";
-        var target = mirror.getNode(id);
+        var target = utils_1.mirror.getNode(id);
         if (!target) {
             return this.debugNodeNotFound(d, id);
         }
@@ -501,11 +500,11 @@ var Replayer = (function () {
         }
     };
     Replayer.prototype.isUserInteraction = function (event) {
-        if (event.type !== EventType.IncrementalSnapshot) {
+        if (event.type !== types_1.EventType.IncrementalSnapshot) {
             return false;
         }
-        return (event.data.source > IncrementalSource.Mutation &&
-            event.data.source <= IncrementalSource.Input);
+        return (event.data.source > types_1.IncrementalSource.Mutation &&
+            event.data.source <= types_1.IncrementalSource.Input);
     };
     Replayer.prototype.restoreSpeed = function () {
         if (this.noramlSpeed === -1) {
@@ -513,7 +512,7 @@ var Replayer = (function () {
         }
         var payload = { speed: this.noramlSpeed };
         this.setConfig(payload);
-        this.emitter.emit(ReplayerEvents.SkipEnd, payload);
+        this.emitter.emit(types_1.ReplayerEvents.SkipEnd, payload);
         this.noramlSpeed = -1;
     };
     Replayer.prototype.warnNodeNotFound = function (d, id) {
@@ -530,5 +529,5 @@ var Replayer = (function () {
     };
     return Replayer;
 }());
-export { Replayer };
+exports.Replayer = Replayer;
 //# sourceMappingURL=index.js.map

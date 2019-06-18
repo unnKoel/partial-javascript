@@ -1,3 +1,4 @@
+"use strict";
 var __assign = (this && this.__assign) || function () {
     __assign = Object.assign || function(t) {
         for (var s, i = 1, n = arguments.length; i < n; i++) {
@@ -9,10 +10,11 @@ var __assign = (this && this.__assign) || function () {
     };
     return __assign.apply(this, arguments);
 };
-import { serializeNodeWithId } from '@partial/rrweb-snapshot';
-import { mirror, throttle, on, hookSetter, getWindowHeight, getWindowWidth, isBlocked, isAncestorRemoved, } from '../utils';
-import { MouseInteractions, } from '../types';
-import { deepDelete, isParentRemoved, isParentDropped } from './collection';
+Object.defineProperty(exports, "__esModule", { value: true });
+var rrweb_snapshot_1 = require("@partial/rrweb-snapshot");
+var utils_1 = require("../utils");
+var types_1 = require("../types");
+var collection_1 = require("./collection");
 function initMutationObserver(cb, blockClass, inlineStylesheet) {
     var observer = new MutationObserver(function (mutations) {
         var texts = [];
@@ -22,7 +24,7 @@ function initMutationObserver(cb, blockClass, inlineStylesheet) {
         var addsSet = new Set();
         var droppedSet = new Set();
         var genAdds = function (n) {
-            if (isBlocked(n, blockClass)) {
+            if (utils_1.isBlocked(n, blockClass)) {
                 return;
             }
             addsSet.add(n);
@@ -34,7 +36,7 @@ function initMutationObserver(cb, blockClass, inlineStylesheet) {
             switch (type) {
                 case 'characterData': {
                     var value = target.textContent;
-                    if (!isBlocked(target, blockClass) && value !== oldValue) {
+                    if (!utils_1.isBlocked(target, blockClass) && value !== oldValue) {
                         texts.push({
                             value: value,
                             node: target,
@@ -44,7 +46,7 @@ function initMutationObserver(cb, blockClass, inlineStylesheet) {
                 }
                 case 'attributes': {
                     var value = target.getAttribute(attributeName);
-                    if (isBlocked(target, blockClass) || value === oldValue) {
+                    if (utils_1.isBlocked(target, blockClass) || value === oldValue) {
                         return;
                     }
                     var item = attributes.find(function (a) { return a.node === target; });
@@ -61,18 +63,18 @@ function initMutationObserver(cb, blockClass, inlineStylesheet) {
                 case 'childList': {
                     addedNodes.forEach(function (n) { return genAdds(n); });
                     removedNodes.forEach(function (n) {
-                        var nodeId = mirror.getId(n);
-                        var parentId = mirror.getId(target);
-                        if (isBlocked(n, blockClass)) {
+                        var nodeId = utils_1.mirror.getId(n);
+                        var parentId = utils_1.mirror.getId(target);
+                        if (utils_1.isBlocked(n, blockClass)) {
                             return;
                         }
                         if (addsSet.has(n)) {
-                            deepDelete(addsSet, n);
+                            collection_1.deepDelete(addsSet, n);
                             droppedSet.add(n);
                         }
                         else if (addsSet.has(target) && nodeId === -1) {
                         }
-                        else if (isAncestorRemoved(target)) {
+                        else if (utils_1.isAncestorRemoved(target)) {
                         }
                         else {
                             removes.push({
@@ -80,7 +82,7 @@ function initMutationObserver(cb, blockClass, inlineStylesheet) {
                                 id: nodeId,
                             });
                         }
-                        mirror.removeNodeFromMap(n);
+                        utils_1.mirror.removeNodeFromMap(n);
                     });
                     break;
                 }
@@ -89,16 +91,16 @@ function initMutationObserver(cb, blockClass, inlineStylesheet) {
             }
         });
         Array.from(addsSet).forEach(function (n) {
-            if (!isParentDropped(droppedSet, n) && !isParentRemoved(removes, n)) {
+            if (!collection_1.isParentDropped(droppedSet, n) && !collection_1.isParentRemoved(removes, n)) {
                 adds.push({
-                    parentId: mirror.getId(n.parentNode),
+                    parentId: utils_1.mirror.getId(n.parentNode),
                     previousId: !n.previousSibling
                         ? n.previousSibling
-                        : mirror.getId(n.previousSibling),
+                        : utils_1.mirror.getId(n.previousSibling),
                     nextId: !n.nextSibling
                         ? n.nextSibling
-                        : mirror.getId(n.nextSibling),
-                    node: serializeNodeWithId(n, document, mirror.map, blockClass, true),
+                        : utils_1.mirror.getId(n.nextSibling),
+                    node: rrweb_snapshot_1.serializeNodeWithId(n, document, utils_1.mirror.map, blockClass, true),
                 });
             }
             else {
@@ -108,16 +110,16 @@ function initMutationObserver(cb, blockClass, inlineStylesheet) {
         var payload = {
             texts: texts
                 .map(function (text) { return ({
-                id: mirror.getId(text.node),
+                id: utils_1.mirror.getId(text.node),
                 value: text.value,
             }); })
-                .filter(function (text) { return mirror.has(text.id); }),
+                .filter(function (text) { return utils_1.mirror.has(text.id); }),
             attributes: attributes
                 .map(function (attribute) { return ({
-                id: mirror.getId(attribute.node),
+                id: utils_1.mirror.getId(attribute.node),
                 attributes: attribute.attributes,
             }); })
-                .filter(function (attribute) { return mirror.has(attribute.id); }),
+                .filter(function (attribute) { return utils_1.mirror.has(attribute.id); }),
             removes: removes,
             adds: adds,
         };
@@ -142,7 +144,7 @@ function initMutationObserver(cb, blockClass, inlineStylesheet) {
 function initMousemoveObserver(cb) {
     var positions = [];
     var timeBaseline;
-    var wrappedCb = throttle(function () {
+    var wrappedCb = utils_1.throttle(function () {
         var totalOffset = Date.now() - timeBaseline;
         cb(positions.map(function (p) {
             p.timeOffset -= totalOffset;
@@ -151,7 +153,7 @@ function initMousemoveObserver(cb) {
         positions = [];
         timeBaseline = null;
     }, 500);
-    var updatePosition = throttle(function (evt) {
+    var updatePosition = utils_1.throttle(function (evt) {
         var clientX = evt.clientX, clientY = evt.clientY, target = evt.target;
         if (!timeBaseline) {
             timeBaseline = Date.now();
@@ -159,49 +161,49 @@ function initMousemoveObserver(cb) {
         positions.push({
             x: clientX,
             y: clientY,
-            id: mirror.getId(target),
+            id: utils_1.mirror.getId(target),
             timeOffset: Date.now() - timeBaseline,
         });
         wrappedCb();
     }, 50, {
         trailing: false,
     });
-    return on('mousemove', updatePosition);
+    return utils_1.on('mousemove', updatePosition);
 }
 function initMouseInteractionObserver(cb, blockClass) {
     var handlers = [];
     var getHandler = function (eventKey) {
         return function (event) {
-            if (isBlocked(event.target, blockClass)) {
+            if (utils_1.isBlocked(event.target, blockClass)) {
                 return;
             }
-            var id = mirror.getId(event.target);
+            var id = utils_1.mirror.getId(event.target);
             var clientX = event.clientX, clientY = event.clientY;
             cb({
-                type: MouseInteractions[eventKey],
+                type: types_1.MouseInteractions[eventKey],
                 id: id,
                 x: clientX,
                 y: clientY,
             });
         };
     };
-    Object.keys(MouseInteractions)
+    Object.keys(types_1.MouseInteractions)
         .filter(function (key) { return Number.isNaN(Number(key)); })
         .forEach(function (eventKey) {
         var eventName = eventKey.toLowerCase();
         var handler = getHandler(eventKey);
-        handlers.push(on(eventName, handler));
+        handlers.push(utils_1.on(eventName, handler));
     });
     return function () {
         handlers.forEach(function (h) { return h(); });
     };
 }
 function initScrollObserver(cb, blockClass) {
-    var updatePosition = throttle(function (evt) {
-        if (!evt.target || isBlocked(evt.target, blockClass)) {
+    var updatePosition = utils_1.throttle(function (evt) {
+        if (!evt.target || utils_1.isBlocked(evt.target, blockClass)) {
             return;
         }
-        var id = mirror.getId(evt.target);
+        var id = utils_1.mirror.getId(evt.target);
         if (evt.target === document) {
             var scrollEl = (document.scrollingElement || document.documentElement);
             cb({
@@ -218,18 +220,18 @@ function initScrollObserver(cb, blockClass) {
             });
         }
     }, 100);
-    return on('scroll', updatePosition);
+    return utils_1.on('scroll', updatePosition);
 }
 function initViewportResizeObserver(cb) {
-    var updateDimension = throttle(function () {
-        var height = getWindowHeight();
-        var width = getWindowWidth();
+    var updateDimension = utils_1.throttle(function () {
+        var height = utils_1.getWindowHeight();
+        var width = utils_1.getWindowWidth();
         cb({
             width: Number(width),
             height: Number(height),
         });
     }, 200);
-    return on('resize', updateDimension, window);
+    return utils_1.on('resize', updateDimension, window);
 }
 var INPUT_TAGS = ['INPUT', 'TEXTAREA', 'SELECT'];
 var lastInputValueMap = new WeakMap();
@@ -239,7 +241,7 @@ function initInputObserver(cb, blockClass, ignoreClass) {
         if (!target ||
             !target.tagName ||
             INPUT_TAGS.indexOf(target.tagName) < 0 ||
-            isBlocked(target, blockClass)) {
+            utils_1.isBlocked(target, blockClass)) {
             return;
         }
         var type = target.type;
@@ -273,14 +275,14 @@ function initInputObserver(cb, blockClass, ignoreClass) {
             lastInputValue.text !== v.text ||
             lastInputValue.isChecked !== v.isChecked) {
             lastInputValueMap.set(target, v);
-            var id = mirror.getId(target);
+            var id = utils_1.mirror.getId(target);
             cb(__assign({}, v, { id: id }));
         }
     }
     var handlers = [
         'input',
         'change',
-    ].map(function (eventName) { return on(eventName, eventHandler); });
+    ].map(function (eventName) { return utils_1.on(eventName, eventHandler); });
     var propertyDescriptor = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value');
     var hookProperties = [
         [HTMLInputElement.prototype, 'value'],
@@ -290,7 +292,7 @@ function initInputObserver(cb, blockClass, ignoreClass) {
     ];
     if (propertyDescriptor && propertyDescriptor.set) {
         handlers.push.apply(handlers, hookProperties.map(function (p) {
-            return hookSetter(p[0], p[1], {
+            return utils_1.hookSetter(p[0], p[1], {
                 set: function () {
                     eventHandler({ target: this });
                 },
@@ -301,7 +303,7 @@ function initInputObserver(cb, blockClass, ignoreClass) {
         handlers.forEach(function (h) { return h(); });
     };
 }
-export default function initObservers(o) {
+function initObservers(o) {
     var mutationObserver = initMutationObserver(o.mutationCb, o.blockClass, o.inlineStylesheet);
     var mousemoveHandler = initMousemoveObserver(o.mousemoveCb);
     var mouseInteractionHandler = initMouseInteractionObserver(o.mouseInteractionCb, o.blockClass);
@@ -317,4 +319,5 @@ export default function initObservers(o) {
         inputHandler();
     };
 }
+exports.default = initObservers;
 //# sourceMappingURL=observer.js.map

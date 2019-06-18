@@ -1,12 +1,14 @@
-export var EventType;
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var EventType;
 (function (EventType) {
     EventType[EventType["DomContentLoaded"] = 0] = "DomContentLoaded";
     EventType[EventType["Load"] = 1] = "Load";
     EventType[EventType["FullSnapshot"] = 2] = "FullSnapshot";
     EventType[EventType["IncrementalSnapshot"] = 3] = "IncrementalSnapshot";
     EventType[EventType["Meta"] = 4] = "Meta";
-})(EventType || (EventType = {}));
-export var IncrementalSource;
+})(EventType = exports.EventType || (exports.EventType = {}));
+var IncrementalSource;
 (function (IncrementalSource) {
     IncrementalSource[IncrementalSource["Mutation"] = 0] = "Mutation";
     IncrementalSource[IncrementalSource["MouseMove"] = 1] = "MouseMove";
@@ -14,8 +16,8 @@ export var IncrementalSource;
     IncrementalSource[IncrementalSource["Scroll"] = 3] = "Scroll";
     IncrementalSource[IncrementalSource["ViewportResize"] = 4] = "ViewportResize";
     IncrementalSource[IncrementalSource["Input"] = 5] = "Input";
-})(IncrementalSource || (IncrementalSource = {}));
-export var MouseInteractions;
+})(IncrementalSource = exports.IncrementalSource || (exports.IncrementalSource = {}));
+var MouseInteractions;
 (function (MouseInteractions) {
     MouseInteractions[MouseInteractions["MouseUp"] = 0] = "MouseUp";
     MouseInteractions[MouseInteractions["MouseDown"] = 1] = "MouseDown";
@@ -27,8 +29,8 @@ export var MouseInteractions;
     MouseInteractions[MouseInteractions["TouchStart"] = 7] = "TouchStart";
     MouseInteractions[MouseInteractions["TouchMove"] = 8] = "TouchMove";
     MouseInteractions[MouseInteractions["TouchEnd"] = 9] = "TouchEnd";
-})(MouseInteractions || (MouseInteractions = {}));
-export var ReplayerEvents;
+})(MouseInteractions = exports.MouseInteractions || (exports.MouseInteractions = {}));
+var ReplayerEvents;
 (function (ReplayerEvents) {
     ReplayerEvents["Start"] = "start";
     ReplayerEvents["Pause"] = "pause";
@@ -41,5 +43,5 @@ export var ReplayerEvents;
     ReplayerEvents["SkipStart"] = "skip-start";
     ReplayerEvents["SkipEnd"] = "skip-end";
     ReplayerEvents["MouseInteraction"] = "mouse-interaction";
-})(ReplayerEvents || (ReplayerEvents = {}));
+})(ReplayerEvents = exports.ReplayerEvents || (exports.ReplayerEvents = {}));
 //# sourceMappingURL=types.js.map
