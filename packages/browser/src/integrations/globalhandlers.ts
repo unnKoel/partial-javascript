@@ -11,7 +11,7 @@ import {
 } from '../tracekit';
 
 import { shouldIgnoreOnError } from './helpers';
-import { BrowserClient } from 'src/client/exception/browserclient';
+import { BrowserClient } from '../client/exception/browserclient';
 
 /** JSDoc */
 interface GlobalHandlersIntegrations {

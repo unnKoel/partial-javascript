@@ -1,5 +1,5 @@
 import { User } from './user';
-import { SyncPromise } from 'src/utils';
+import { SyncPromise } from '../utils';
 import { EventBase } from './eventbase';
 
 /**

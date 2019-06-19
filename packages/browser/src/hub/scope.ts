@@ -1,6 +1,6 @@
 import { Scope as ScopeInterface, User } from '../types';
 import { isThenable, normalize, SyncPromise } from '../utils';
-import { EventBase } from 'src/types/eventbase';
+import { EventBase } from '../types/eventbase';
 
 /**
  * Holds additional event information. {@link Scope.applyToEvent} will be

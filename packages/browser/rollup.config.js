@@ -3,6 +3,7 @@ import typescript from "rollup-plugin-typescript2";
 import license from "rollup-plugin-license";
 import resolve from "rollup-plugin-node-resolve";
 import commonjs from "rollup-plugin-commonjs";
+import postcss from "rollup-plugin-postcss";
 
 const commitHash = require("child_process")
   .execSync("git rev-parse --short HEAD", { encoding: "utf-8" })
@@ -38,6 +39,11 @@ const plugins = [
       }
     },
     include: ["*.ts+(|x)", "**/*.ts+(|x)", "../**/*.ts+(|x)"]
+  }),
+  postcss({
+    extract: true,
+    minimize: true,
+    sourceMap: "inline"
   }),
   resolve({
     mainFields: ["module"]

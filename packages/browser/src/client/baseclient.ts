@@ -2,7 +2,7 @@ import { Client } from './client';
 import { Scope, Options } from '../types';
 import { Transport } from '../transport/transport';
 import { SyncPromise, logger } from '../utils';
-import { EventBase } from 'src/types/eventbase';
+import { EventBase } from '../types/eventbase';
 
 export class BaseClient<O extends Options, E extends EventBase, H> implements Client<O, E, H> {
     /** Options passed to the SDK. */
